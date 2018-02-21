@@ -1,7 +1,6 @@
 import numpy as np
 import pygame as pg
 
-
 class World():
     
     def __init__( self, width = 4, height = 4 ):

@@ -38,7 +38,7 @@ module project
 	
 
 	
-	wire FUCKER;
+	wire gameOverSignal;
 	
 	wire [5:0] title, neighbour;
 	wire wren, wren_has_bomb;
@@ -48,11 +48,11 @@ module project
 	wire [5:0] pixel_offset;	
 	wire right, left, up, down, reveal, game_over;
 	wire save_centre, need_neigh_for_reveal, reveal_neigh, neigh_reveal_address_ram_revealed;
-	wire reset_shit;
+	wire reset_game_signal;
 	wire resetn;
 	
 	control c0( 
-		.FUCKER(FUCKER),
+		.gameOverSignal(gameOverSignal),
 		.clock(CLOCK_50),
 		.resetn(resetn),
 		.wren(wren),  
@@ -76,11 +76,11 @@ module project
 		.need_neigh_for_reveal(need_neigh_for_reveal),
 		.reveal_neigh(reveal_neigh),
 		.neigh_reveal_address_ram_revealed(neigh_reveal_address_ram_revealed),
-		.reset_shit(reset_shit)
+		.reset_game_signal(reset_game_signal)
 	);
 	
 	datapath d0(
-		.FUCKER(FUCKER),
+		.gameOverSignal(gameOverSignal),
 		.clock(CLOCK_50),
 		.wren(wren), 
 		.wren_has_bomb(wren_has_bomb), .wren_reveal(wren_reveal),
@@ -104,7 +104,7 @@ module project
 		.need_neigh_for_reveal(need_neigh_for_reveal), 
 		.reveal_neigh(reveal_neigh), 
 		.neigh_reveal_address_ram_revealed(neigh_reveal_address_ram_revealed),
-		.reset_shit(reset_shit)
+		.reset_game_signal(reset_game_signal)
 	);
 	
 	vga_adapter VGA(
@@ -132,7 +132,7 @@ endmodule
 
 
 module control( 
-	input clock,				output reg FUCKER,
+	input clock,				output reg gameOverSignal,
 	output resetn,
 	output reg wren, wren_has_bomb, wren_reveal,
 	output reg right_1, left_1, up_1, down_1, reveal_1,
@@ -145,7 +145,7 @@ module control(
 	input game_over,    
 	input PS2_CLK, input PS2_DAT, 
 	output reg save_centre, need_neigh_for_reveal, reveal_neigh, neigh_reveal_address_ram_revealed, 
-	output reg reset_shit
+	output reg reset_game_signal
 );
 	
 	wire right; wire left; wire up; wire down; wire reveal;
@@ -202,7 +202,7 @@ module control(
 					LOAD_NEIGHBOUR_INFO			= 5'd23,	// Loads the neighbour info - 
 					REVEAL_NEIGHBOUR				= 5'd24,	// update register of reveal status for neighbour
 					SAVE_NEIGHBOUR_INFO			= 5'd25, // saves register
-					RESET_REVEAL					= 5'd26, // resets some shit to 0
+					RESET_REVEAL					= 5'd26, // resets some game stuff to 0
 					
 					WAIT_FOR_RESET					= 5'd27, // reset
 					RESET_WAIT						= 5'd28;
@@ -332,9 +332,9 @@ module control(
 		need_neigh_for_reveal					= 0;
 		reveal_neigh 								= 0;  
 		neigh_reveal_address_ram_revealed 	= 0;
-		reset_shit									= 0;
+		reset_game_signal									= 0;
 		
-		FUCKER =0;
+		gameOverSignal =0;
 		
 		case (current_state)
 			RESET:
@@ -387,7 +387,7 @@ module control(
 			UPDATE_PIXEL:
 				begin
 					update_pixel = 1;
-					FUCKER = 1;
+					gameOverSignal = 1;
 					pixel_counter_enabled = 1;
 					if (pixel_offset == num_of_pixels)
 						title_counter_enabled = 1;
@@ -457,7 +457,7 @@ module control(
 				end
 			RESET_REVEAL:
 				begin
-					reset_shit = 1;
+					reset_game_signal = 1;
 				end
 			//#########################################################################	
 		endcase
@@ -518,10 +518,10 @@ module datapath(
 	output reg [2:0] col,
 	output reg game_over,
 	input need_neigh_for_reveal, save_centre, reveal_neigh, neigh_reveal_address_ram_revealed, 
-	input reset_shit,
+	input reset_game_signal,
 	
 	
-	input FUCKER
+	input gameOverSignal
 );
 	
 	reg [5:0] pos; initial pos = 6'd0;  // the current position
@@ -625,7 +625,7 @@ module datapath(
 	
 	
 	// ###############################################################################################################################
-	// does different shit depending on signals
+	// updates game depending on signals
 	
 	always @( posedge clock )
 	begin
@@ -701,13 +701,13 @@ module datapath(
 					is_revealed_in = 0;
 			end
 			
-		if( reset_shit )
-		// resets some shit
+		if( reset_game_signal )
+		// resets game
 			begin
 				centre_is_revealed = 0;
 				is_revealed_in = 0;
 			end
-		if( FUCKER)
+		if( gameOverSignal)
 			begin
 			if( is_revealed_out & has_bomb_out )
 			begin

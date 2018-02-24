@@ -7,9 +7,10 @@ from scipy.stats import multivariate_normal
 def generateDate( n = 100 ):
     d1 = pd.DataFrame( { 'x' : np.random.normal( loc = 1, scale = 0.5, size = n ),  'y' : np.random.normal( loc = 1, scale = 0.5, size = n ), 'c' : np.full(shape = (1,n), fill_value = 1 )[0] } )
     d2 = pd.DataFrame( { 'x' : np.random.normal( loc = 5, scale = 0.5, size = n ),  'y' : np.random.normal( loc = 2, scale = 0.5, size = n ), 'c' : np.full(shape = (1,n), fill_value = 2 )[0] } )
-    d3 = pd.DataFrame( { 'x' : np.random.normal( loc = 10, scale = 0.5, size = n ), 'y' : np.random.normal( loc = 3, scale = 0.5, size = n ), 'c' : np.full(shape = (1,n), fill_value = 3 )[0] } )
+    d3 = pd.DataFrame( { 'x' : np.random.normal( loc = -5, scale = 0.5, size = n ), 'y' : np.random.normal( loc = 3, scale = 0.5, size = n ), 'c' : np.full(shape = (1,n), fill_value = 3 )[0] } )
     d4 = pd.DataFrame( { 'x' : np.random.normal( loc = 1, scale = 0.5, size = n ),  'y' : np.random.normal( loc = 3, scale = 0.5, size = n ), 'c' : np.full(shape = (1,n), fill_value = 4 )[0] } )
-    return( pd.concat( [d1, d2, d3, d4 ] ) )
+    d5 = pd.DataFrame( { 'x' : np.random.normal( loc = 1, scale = 0.5, size = n ),  'y' : np.random.normal( loc = 5, scale = 0.5, size = n ), 'c' : np.full(shape = (1,n), fill_value = 5 )[0] } )
+    return( pd.concat( [d1, d2, d3, d4, d5 ] ) )
 
 
 def LDA():
@@ -25,7 +26,7 @@ def LDA():
     classifications = list( map( classify, xx, yy  ) )
 
 
-    colors = ['red','green','blue', 'black']
+    colors = ['red','green','blue', 'black', 'yellow']
     plt.scatter( x = xx, y = yy, c = classifications, cmap=matplotlib.colors.ListedColormap(colors), s  = 0.5)
     plt.scatter( x = d.x, y=d.y, c = d.c, cmap=matplotlib.colors.ListedColormap(colors) )
     plt.show()
@@ -45,14 +46,14 @@ def QDA():
     xx = xx.flatten(); yy = yy.flatten()
     classifications = list( map( classify, xx, yy  ) )
 
-    colors = ['red','green','blue', 'black']
+    colors = ['red','green','blue', 'black', 'yellow']
     plt.scatter( x = xx, y = yy, c = classifications, cmap=matplotlib.colors.ListedColormap(colors), s  = 0.5)
     plt.scatter( x = d.x, y=d.y, c = d.c, cmap=matplotlib.colors.ListedColormap(colors) )
     plt.show()
 
 
 d = generateDate(35)
-k = 4
+k = 5
 LDA()
 QDA()
 

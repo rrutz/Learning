@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib
 import matplotlib.pyplot as plt
 from scipy.stats import multivariate_normal
+from sklearn import linear_model
 
 def generateDate( n = 100 ):
     d1 = pd.DataFrame( { 'x' : np.random.normal( loc = 1, scale = 0.5, size = n ),  'y' : np.random.normal( loc = 1, scale = 0.5, size = n ), 'c' : np.full(shape = (1,n), fill_value = 1 )[0] } )
@@ -51,10 +52,23 @@ def QDA():
     plt.scatter( x = d.x, y=d.y, c = d.c, cmap=matplotlib.colors.ListedColormap(colors) )
     plt.show()
 
+def logisticRegression():
+    log = linear_model.LogisticRegression()
+    log.fit( X = d.loc[: , ["x","y"]], y = d.c )
+
+    xx, yy = np.meshgrid( np.linspace( np.min(d.x), np.max(d.x) ),  np.linspace( np.min(d.y), np.max(d.y)) )
+    xx = xx.flatten(); yy = yy.flatten()
+    classification = log.predict( X = pd.DataFrame( {"x" : xx, "y" : yy} ) )
+
+    colors = ['red','green','blue', 'black', 'yellow']
+    plt.scatter( x = xx, y = yy, c = classification, cmap=matplotlib.colors.ListedColormap(colors), s = 0.5 )
+    plt.scatter( x = d.x, y=d.y, c = d.c, cmap=matplotlib.colors.ListedColormap(colors) )
+    plt.show()
 
 d = generateDate(35)
 k = 5
 LDA()
 QDA()
+logisticRegression()
 
 

@@ -18,17 +18,19 @@ def nearestNeighKernal( n = 50, k = 5 ):
         return temp.iloc[ 0:k, : ].y.mean()
 
     def normalWeigthkeranl( x_in ):
-        sigma = 3.0
+        sigma = 1.0
         weights = stats.norm.pdf( d.x, loc  = x_in, scale = sigma )
         weights = weights / np.sum(weights)
         return np.sum( weights * d.y)
 
     def localLinearKernal( x_in ):
-        sigma = 3.0
+        sigma = 1.0
         weights = stats.norm.pdf( d.x, loc  = x_in, scale = sigma )
         weights = weights / np.sum(weights)
-
-    
+        xx =  pd.DataFrame( { "k" : weights**0.5, "x" : weights**0.5 *d.x  })
+        b = np.dot( np.dot( np.linalg.inv( np.dot( np.transpose(xx), xx) ), np.transpose(xx)), d.y * xx.k)
+        return( b[0] + x_in * b[1] )
+        
 
 
     xSpaced = np.linspace( np.min(d.x), np.max(d.x), num = 500).flatten()
@@ -36,8 +38,8 @@ def nearestNeighKernal( n = 50, k = 5 ):
     plt.plot( xSpaced, 2.0*np.sin(xSpaced/ 3.0) + abs(np.cos(xSpaced)), label ="True" )
     plt.plot( xSpaced, list( map( evenWeigthkeranl, xSpaced )  ), label = "constant Weight" )
     plt.plot( xSpaced, list( map( normalWeigthkeranl, xSpaced )  ), label = "Normal Weight" )
-    #plt.plot( xSpaced, list( map( localLinearKernal, xSpaced )  ), label = "Local Linear" )
+    plt.plot( xSpaced, list( map( localLinearKernal, xSpaced )  ), label = "Local Linear" )
     plt.legend()
     plt.show()
 
-nearestNeighKernal(200, 30)
+nearestNeighKernal(200, 15)

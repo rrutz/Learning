@@ -37,13 +37,11 @@ def kMeans( k = 10 ):
         distance = pd.DataFrame( { "dist" : (d_train.x - x)**2 + (d_train.y - y)**2 , "class" : d_train["class"] } )
         sortedDist = distance.sort_values( ["dist"] )
         percentage = np.sum( sortedDist.iloc[0:k ,0 ]  ) / k
-        if percentage > 0.5:
-            return 1
-        return 0
+        return round(percentage)
 
     # fit data
-    xx, yy = np.meshgrid(  np.linspace( np.min(d_train.x),  np.max(d_train.x) ),  np.linspace( np.min(d_train.y),  np.max(d_train.y)) )
-    xx =  xx.flatten(); yy =  yy.flatten()
+    xx, yy = np.meshgrid( np.linspace( np.min(d_train.x), np.max(d_train.x) ),  np.linspace( np.min(d_train.y), np.max(d_train.y)) )
+    xx = xx.flatten(); yy = yy.flatten()
     classification = np.array( list( map( lambda x, y: nearestNeigh(x, y, k ) , xx , yy) ))
 
     # plot 
@@ -55,7 +53,7 @@ def kMeans( k = 10 ):
 
 
 linearClass()
-kMeans( 2 )
+kMeans( 1 )
 
 
 

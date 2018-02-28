@@ -42,4 +42,10 @@ def nearestNeighKernal( n = 50, k = 5 ):
     plt.legend()
     plt.show()
 
-nearestNeighKernal(200, 15)
+nearestNeighKernal(100, 10)
+
+
+
+
+
+

@@ -1,2 +1,2 @@
 # Learning
-little side projects to learn new material
+small/simple scripts to learn new material relating to ML and Statistics 

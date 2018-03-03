@@ -25,6 +25,8 @@ def addSplines( d, predictors, numOfSplines ):
 
     return d
 
+
+
 def __main__():
     # get data
     d_t = GetData.readIn(  "C:\\Users\\Ruedi\\OneDrive\\Learning\\Learning\\Machine Learning(python)\\Kaggle Data\\Titanic\\train.csv" )
@@ -34,11 +36,12 @@ def __main__():
 
     d = pd.concat( [d_v,d_t], axis = 0, join = "outer" )
     d = GetData.fillMissingAgeValues(d)
-    d = GetData.addAgeDummies(d)
-    d = GetData.addAgeGroup( d )
+    #d = GetData.addAgeDummies(d)
+    #d = GetData.addAgeGroup( d )
 
-    numOfSplines = 3
+    numOfSplines = 8
     d = addSplines( d, ["Fare", "Age"], numOfSplines )
+
 
     # break up data
     d_t = d[ pd.isna( d.Survived ) == False ]
@@ -47,7 +50,7 @@ def __main__():
 
   
     # predict model to get prediciton of error
-    predictors = [ "Fare", "Pclass1", "Pclass2", "Pclass3", "Sex", "Age", "child", "middle", "old" ]
+    predictors = [ "Fare", "Pclass1", "Pclass2", "Pclass3", "Sex", "Age" ]
     for p in  ["Fare", "Age"]:
         for i in range(numOfSplines):
             predictors.append( "bs "+str(p)+str(i) )

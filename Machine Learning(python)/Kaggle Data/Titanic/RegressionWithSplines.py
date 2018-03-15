@@ -39,7 +39,7 @@ def __main__():
     #d = GetData.addAgeDummies(d)
     #d = GetData.addAgeGroup( d )
 
-    numOfSplines = 8
+    numOfSplines = 7
     d = addSplines( d, ["Fare", "Age"], numOfSplines )
 
 
@@ -49,19 +49,20 @@ def __main__():
     d_v = d[ pd.isna( d.Survived )  ].sort_values( ["PassengerId"] )
 
   
-    # predict model to get prediciton of error
     predictors = [ "Fare", "Pclass1", "Pclass2", "Pclass3", "Sex", "Age" ]
     for p in  ["Fare", "Age"]:
         for i in range(numOfSplines):
             predictors.append( "bs "+str(p)+str(i) )
 
+    # predict model to get prediciton of errors
     n  = d_t.shape[0]
     d_tt = d_t[0:(n-400)]
+    d_vv = d_t[(n-400):]
     reg = linear_model.LogisticRegression()
     reg.fit( X = d_tt.loc[ :, predictors  ], y = d_tt["Survived"] )
-    d_vv = d_t[(n-400):]
     p = reg.predict( X = d_vv.loc[ :,predictors  ])
     print( sum( d_vv["Survived"] == p ) / d_vv.shape[0]) 
+
 
     # fit full model
     reg = linear_model.LogisticRegression()

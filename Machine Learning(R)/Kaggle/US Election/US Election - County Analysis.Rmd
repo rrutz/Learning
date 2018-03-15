@@ -1,0 +1,582 @@
+---
+title: "US Election - County Analysis"
+output: html_notebook
+---
+
+
+Load in required packages
+```{r}
+required_Packages = list("dplyr", "ggplot2", "maps", "grid", "gridExtra", "glmnet", "scales" ) 
+for( package in required_Packages )
+{
+  if( !is.element(package, installed.packages()[,1]))
+  {
+    install.packages(package)
+  }
+  require(package, character.only = T)
+}
+
+rm(required_Packages)
+```
+
+
+
+
+Load the county data in and combined the tables.
+```{r}
+county_Data <- list()
+
+## get voting data
+{ Results_By_County_DF <- read.csv( "US_County_Level_Presidential_Results_12-16.csv" )
+  county_Data[['voting_Data']] <- data.frame(  'fips' = Results_By_County_DF$FIPS, 
+                                               'votes_dem_2016' = Results_By_County_DF$votes_dem_2016,
+                                               'votes_gop_2016' = Results_By_County_DF$votes_gop_2016,
+                                               'total_votes_2016' = Results_By_County_DF$total_votes_2016,
+                                               'per_dem_2016' = Results_By_County_DF$per_dem_2016,
+                                               'per_gop_2016' = Results_By_County_DF$per_gop_2016,
+                                               'per_point_diff_2016' = Results_By_County_DF$per_point_diff_2016,
+                                               'per_point_diff_2012' = Results_By_County_DF$per_point_diff_2012 )
+  rm(Results_By_County_DF)
+}
+
+# get county variables field description
+county_Data[['fieldDescription']] <- read.csv("county_facts_dictionary.csv")
+
+# get county factors, rename, and delete unneeded varaibles
+{
+  county_Info <- read.csv( "county_facts.csv" )
+  { # data conversion
+      { # convert need variables to percentages
+          cols = as.vector( county_Data$fieldDescription$column_name[county_Data$fieldDescription$Convert.To.Percent=='y' ] )
+          county_Info[ , cols ] <-  county_Info[ , cols ] /100
+      }
+      
+      { # convert needed variables to per capita 
+          cols = as.vector( county_Data$fieldDescription$column_name[county_Data$fieldDescription$Convert.to.per.pop=='y' ] )
+          county_Info[ , cols ] <-  county_Info[ , cols ] / county_Info[ , 'PST045214' ]
+      }
+    
+      { # change column names
+          if( sum(colnames(county_Info)[4:ncol(county_Info)] != county_Data$fieldDescription$column_name) >0 )
+          {
+            print("Fix name order")
+          } else
+          {
+            colnames(county_Info)[4:ncol(county_Info)] = as.character(county_Data$fieldDescription$New.Name)
+          }
+      }
+    
+      {  # remove unwanted columns
+          county_Info[, colnames(county_Info) == 'Delete']  <- NULL
+      }
+    
+      county_Data[['county_Info']] <- county_Info
+  }
+}
+
+rm(county_Info)
+```
+
+
+The US map function
+```{r}
+colors = list( rep.Red = '#E91D0E', dem.Blue = '#232066' )  
+
+usMap <- function( df, fillName, customColor = c(colors$rep.Red, 'white', colors$dem.Blue), addCountyLine=F, legend_name=F, setMinMax=F )
+{
+  # join the fill values with the county long/lat data
+  fips <- county.fips
+  fips <- cbind( fips,  do.call( 'rbind', strsplit( as.vector(fips$polyname ), split = ',') ) )
+  fips$polyname <- NULL
+  colnames(fips) <- c("fips", "region", "subregion" )
+  fips = full_join( fips, map_data("county"), by = c("region", "subregion")  )
+  fips = left_join( df, fips, by=c('fips'))
+  
+  # sets the fill value range ( 0 is the center value )
+  if( setMinMax == F )
+  {
+    maxValue <- max(0.001, max(fips[, fillName] ))
+    minValue <- min(-0.001, min(fips[, fillName] ) )
+  } else
+  {
+    minValue = min( -0.001, setMinMax[1] )
+    maxValue = max( 0.001, setMinMax[2] )
+  }
+  
+  # plot the map
+  g <- ggplot(fips, aes(x=long, y=lat, group = group)) + 
+  geom_polygon( aes_string( group = 'group', fill=fillName )) +
+  scale_fill_gradientn( colours=customColor,
+                        values=rescale(c(minValue,0,maxValue)), 
+                        guide = "colorbar", 
+                        limits=c(minValue,maxValue),
+                        labels = percent ) +
+  theme(axis.title=element_blank(),
+        axis.text=element_blank(),
+        axis.ticks=element_blank(),
+        panel.grid.major = element_blank(), 
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank()) 
+  
+  # remove the legend
+  if( legend_name == F)
+  {
+    g = g + theme(legend.position="none")
+  }
+  
+  # add county lines to map
+  if(addCountyLine)
+    g = g +geom_path( data = map_data("county") , color = "grey", size = 0.3) 
+  
+  # add state lines to map
+  g = g +geom_path( data = map_data("state") , colour = "black", size=1)
+  print(g)
+}
+
+```
+
+
+
+
+
+
+Look at the county vote data to determine cause of change
+```{r}
+
+# get voting data
+{ 
+  voting_Data <- county_Data$voting_Data[ !is.na(county_Data$voting_Data$per_point_diff_2012) , ]
+  class <- rep(-1, nrow(voting_Data))
+  class[voting_Data$per_point_diff_2016>0] <- 1
+  voting_Data$change <- voting_Data$per_point_diff_2016 - voting_Data$per_point_diff_2012
+}
+```
+
+Plot some maps
+```{r}
+# map of majority. red if rep won, blue if dem wond
+usMap( cbind(voting_Data, 'class' = class) , 'class', addCountyLine=T )
+
+# map of 2012 difference in percentages
+usMap(voting_Data, 'per_point_diff_2012', addCountyLine=T, 
+      setMinMax=c( min( c(voting_Data$per_point_diff_2012,voting_Data$per_point_diff_2016 )),  
+                   max( c(voting_Data$per_point_diff_2012,voting_Data$per_point_diff_2016 )) ) )
+
+# map of change from 2012 to 2016
+usMap(voting_Data, 'change' )
+
+# map of 2016 difference in percentages
+usMap(voting_Data, 'per_point_diff_2016', addCountyLine=T, 
+      setMinMax=c( min( c(voting_Data$per_point_diff_2012,voting_Data$per_point_diff_2016 )),  
+                   max( c(voting_Data$per_point_diff_2012,voting_Data$per_point_diff_2016 )) ) )
+
+# same as above but get the legend
+usMap(voting_Data, 'per_point_diff_2016',legend_name="Percent Differences",
+      setMinMax=c( min( c(voting_Data$per_point_diff_2012,voting_Data$per_point_diff_2016 )),  
+                   max( c(voting_Data$per_point_diff_2012,voting_Data$per_point_diff_2016 )) ) )
+
+```
+
+county majoriy counts for 2012 and 2016
+```{r}
+sum(voting_Data$per_point_diff_2012>0) #dem2012  
+sum(voting_Data$per_point_diff_2012<0) #rep2012 
+
+sum(voting_Data$per_point_diff_2016>0) #dem2016 
+sum(voting_Data$per_point_diff_2016<0) #rep2016  
+```
+
+look at changes between 2012 and 2016
+```{r}
+{
+  sum( voting_Data$change<0 ) # count of decrease dem support
+  sum( voting_Data$change>0 ) # count of increase in dem support
+  
+  # dem retained
+  nrow( voting_Data[voting_Data$per_point_diff_2012>0,] )
+  nrow( voting_Data[ (voting_Data$per_point_diff_2012>0 & voting_Data$per_point_diff_2016>0) ,] )
+  # rep retained
+  nrow( voting_Data[voting_Data$per_point_diff_2012<0,] )
+  nrow( voting_Data[ (voting_Data$per_point_diff_2012<0 & voting_Data$per_point_diff_2016<0) ,] )
+}
+
+# histogram of the percent change for dem
+{
+  switchCounties <- voting_Data[(voting_Data$per_point_diff_2012>0 & voting_Data$per_point_diff_2016<0),]
+  
+  ggplot(switchCounties) + geom_histogram( aes( x=change ), color='black',fill = colors$dem.Blue, bins=15 ) + 
+    xlab( "(2016 Percentage Difference) - (2012 Percentage Difference)") + ylab("Number of Counties") +
+    scale_x_continuous(labels=percent) +
+    ggtitle("Change in Percent Differences (Democrat minus Republican)" ) + 
+    theme( axis.text.y = element_text(size = 12), 
+           axis.text.x = element_text(size = 12),
+           axis.title.y = element_text(size = 13), 
+           axis.title.x = element_text(size = 13),
+           plot.title = element_text(size = 18))
+  
+  rm(switchCounties)
+}
+```
+
+
+Create dem_to_rep and dem_to_dem groups
+```{r}
+{
+  dem_to_rep.index <- (voting_Data$per_point_diff_2012 > 0) &  (voting_Data$change < -.05) &  (voting_Data$per_point_diff_2016 < 0)
+  dem_to_dem.index <- (voting_Data$per_point_diff_2012 > 0) &  (voting_Data$change > -.05) &  (voting_Data$per_point_diff_2016 > 0)
+  sum(dem_to_dem.index)
+  sum(dem_to_rep.index)
+  dem_to_rep <- voting_Data[ dem_to_rep.index, ]
+  dem_to_dem <- voting_Data[ dem_to_dem.index , ]
+  
+  # Map switched and remained counties  
+  p <- rep( 0, nrow(voting_Data) )
+  p[ dem_to_rep.index ] = -1
+  p[ dem_to_dem.index ] = 1
+  usMap( data.frame( voting_Data, p), 'p', addCountyLine =T )
+  
+  # Map switched and remained counties  with percent cahange
+  p <- rep( 0, nrow(voting_Data) )
+  p[ dem_to_rep.index ] = voting_Data$change[ dem_to_rep.index ]
+  p[ dem_to_dem.index ] = voting_Data$change[ dem_to_dem.index ]
+  usMap( data.frame( voting_Data, p), 'p', addCountyLine =T ,legend_name="add legend")
+  usMap( data.frame( voting_Data, p), 'p', addCountyLine =T )
+}
+
+# clean up environment
+{
+  rm(voting_Data)
+  rm(dem_to_rep.index)
+  rm(dem_to_dem.index)
+  rm(p)
+  rm(class)
+}
+
+```
+
+
+
+
+
+Create list objects for the two groups
+```{r}
+predictors <- colnames(county_Data$county_Info )[4:length(county_Data$county_Info)]
+
+dem_to_dem <- list( data = left_join(dem_to_dem, county_Data$county_Info, by='fips' ) )
+dem_to_dem[['diff']] <- dem_to_dem$data$per_point_diff_2016
+dem_to_dem[['X']] <- dem_to_dem$data[, predictors] 
+dem_to_dem[['n']] <- nrow(dem_to_dem$data)
+dem_to_dem[['means']] <- colMeans( dem_to_dem$X )
+dem_to_dem[['medians']] <-  apply(dem_to_dem$X, 2, median)
+dem_to_dem[['var']] <-  diag( var( dem_to_dem$X ) )
+
+dem_to_rep <- list( data = left_join(dem_to_rep, county_Data$county_Info, by='fips' ) )
+dem_to_rep[['diff']] <- dem_to_rep$data$per_point_diff_2016
+dem_to_rep[['X']] <- dem_to_rep$data[, predictors ]
+dem_to_rep[['n']] <- nrow(dem_to_rep$data)
+dem_to_rep[['means']] <- colMeans( dem_to_rep$X )
+dem_to_rep[['medians']] <-apply(dem_to_rep$X, 2, median)
+dem_to_rep[['var']] <-  diag( var( dem_to_rep$X ) )
+
+```
+
+
+fitted densities for the variables of the two groups
+```{r}
+for( pred in predictors)
+{
+  g <- ggplot() + geom_density( mapping = aes(x=dem_to_dem$data[,pred]), color = "blue" )  +
+    geom_density( mapping = aes(x=dem_to_rep$data[,pred]  ), colour = "red") + xlab(pred) 
+  print(g)
+} 
+```
+
+Compare the means of the two groups ( switched - remained )
+```{r}
+diff <- list( mean =  dem_to_rep$means - dem_to_dem$means )
+diff[['se']] <- numeric( length = length(colnames(dem_to_dem$X)))
+names(diff$se) <- colnames(dem_to_dem$X)
+diff[['p-value']] <- numeric( length = length(colnames(dem_to_dem$X)))
+names(diff$`p-value`) <- colnames(dem_to_dem$X)
+
+# calcualte SE and p-value for mean differences 
+local( 
+  for( pred in predictors )
+  {
+    if( grepl('%', pred))
+    {
+      p.dem <- dem_to_dem$means[pred]; q.dem = 1 - p.dem
+      p.rep <- dem_to_rep$means[pred]; q.rep = 1 - p.rep
+      se <- ( p.dem*q.dem / dem_to_rep$n + p.rep*q.rep / dem_to_dem$n )**0.5 
+    } else
+    {
+      se <- ( dem_to_dem$var[pred] / dem_to_dem$n + dem_to_rep$var[pred] / dem_to_rep$n )**0.5
+    }
+    diff$se[pred] <<- se
+    diff$`p-value`[pred] <<- 2* (1-pnorm(abs(diff$mean[pred]) / se) )
+  }
+)
+
+# use bonferroni 
+meanDiff <- sort( names( sort( diff$`p-value`[ diff$`p-value` < .05/length(colnames(dem_to_dem$X)) ])) )
+print(sort( meanDiff))
+```
+
+Compare the median of the two groups ( switched - remained )
+```{r}
+# compare medians
+median <- list( diff = apply(dem_to_rep$X, 2, median) - apply(dem_to_dem$X, 2, median)   )
+median[['se']] <- numeric( length = length(colnames(dem_to_dem$X)))
+median[['p-value']] <- numeric( length = length(colnames(dem_to_dem$X)))
+names(median$`p-value`) <- colnames(dem_to_dem$X)
+
+# calculate se and p-value of diff using bootstrap
+local( 
+  for( pred in predictors )
+  {
+    medians <- c()
+    for( sim in c(1:200))
+    {
+      diffInMed <- median( sample(x=dem_to_rep$data[, pred], size =150, replace = T )) -
+        median( sample(x=dem_to_dem$data[, pred], size =150, replace = T ))  
+      medians <- c( medians, diffInMed)
+    }
+    median$se[pred] <<- var(medians)**0.5
+    median$`p-value`[pred] <<- pnorm( q = abs(mean(medians) ), sd = var(medians)**0.5, lower.tail=FALSE  )
+  }
+)
+
+# use bonferroni p-value
+medDifff <- sort( names( sort( median$`p-value`[ median$`p-value` < .05/length(colnames(dem_to_dem$X)) ])) )
+print(sort( medDifff))
+
+```
+
+plot mean and medium distributions ( switched - remained )
+```{r}
+for( pred in predictors)
+{
+  avg <- diff$mean[pred]
+  se <- diff$se[pred]
+  x = seq( from=avg-3*se, to=avg+3*se, length.out =100 )
+  g1 <- ggplot() + geom_line( mapping = aes(x=x, y=dnorm(x, mean = avg, sd=se   )), color = "blue" )  + xlab(pred) + ggtitle("Mean") 
+
+  
+  avg <- median$diff[pred]
+  se <- median$se[pred]
+  x = seq( from=avg-3*se, to=avg+3*se, length.out =100 )
+  g2 <- ggplot() + geom_line( mapping = aes(x=x, y=dnorm(x, mean = avg, sd=se   )), color = "blue" )  + xlab(pred) + ggtitle("Median") 
+  
+  if(se==0){next }
+  print(grid.arrange(g1, g2, nrow = 1))
+}
+```
+
+
+From above analysis lets create some group characteristics
+```{r}
+predictorsGrouping <- list()
+
+predictorsGrouping[["Population"]]  <- c("Population", 
+                                         "Population Change (%)", 
+                                         "House: Multi-unit housing (%)", 
+                                         "Population density",
+                                         "Pop: Living in same place for a year (%)"  )
+
+predictorsGrouping[["Race"]] <- c('Race: White (%)', 
+                                  'Race: Black (%)', 
+                                  'Race: Native (%)', 
+                                  'Race: Asian (%)',
+                                  'Race: Hawaiian (%)',
+                                  'Raced: Mixed (%)',
+                                  'Raced: Latino (%)',
+                                  "Pop: Foreign Born (%)",
+                                  "Non English Language spoken (%)" )
+
+predictorsGrouping[["Age"]] <- c('Age: < 5 (%)', 
+                                 'Age: < 18 (%)', 
+                                 'Age:  > 65 (%)'  )
+
+predictorsGrouping[["Education"]] <- c('High School grad (%)', 
+                                       'Bachelors (%)'  )
+
+predictorsGrouping[["Housing"]] <- c('House: Homeownership Rate (%)', 
+                                     'House: Median Value', 
+                                     'House: Person per household'  )
+
+predictorsGrouping[["income"]] <- c('Income: per capital', 
+                                    'Income: household income' 
+                                     )
+
+predictorsGrouping[["Economic"]] <- c('Porverty rate (%)', 
+                                      "Economy: nonfarm employment", 
+                                      "Economy: num of firms", 
+                                      "Economy: Retail sales", 
+                                      "Economy: wholesaler sales", 
+                                      "Economy: Building permits",
+                                      "Economy: Acc. And food servces sales",
+                                      "Economy: Manufacturers shipments")
+```
+
+
+Now lets calculate the means and medians for those groups
+```{r}
+
+# print the mean and mediam for the two groups
+for( group in names(predictorsGrouping ))
+{
+  print( paste(rep("=", 100), sep ='', collapse = ''))
+  print(group)
+  df= data.frame(  round(dem_to_rep$means[ predictorsGrouping[[group]]  ],5) ) 
+  df = cbind( df,  data.frame(  round(dem_to_rep$medians[ predictorsGrouping[[group]]  ],5) ) )
+  df = cbind( df,  data.frame(  round(dem_to_dem$means[ predictorsGrouping[[group]]  ],5) ) )
+  df = cbind( df,  data.frame(  round(dem_to_dem$medians[ predictorsGrouping[[group]]  ],5) ) )
+  
+  
+  colnames(df) <- c( paste( group, " - mean: dem_to_rep"),
+                    paste( group, " - median: dem_to_rep"),
+                    paste( group, " - mean: dem_to_dem"),
+                    paste( group, " - median: dem_to_dem"))
+  print(df) 
+}
+
+# need to do age sepeately
+print( paste(rep("-", 100), sep ='', collapse = ''))
+print( "mean: dem_to_rep")
+round(dem_to_rep$means[ predictorsGrouping$Age],5)
+mean( 1-  as.vector(rowSums(dem_to_rep$X[, predictorsGrouping[["Age"]]])  ) )
+
+print( paste(rep("-", 100), sep ='', collapse = ''))
+print( "mediam: dem_to_rep")
+round(dem_to_rep$medians[ predictorsGrouping$Age],5)
+median( 1-  as.vector(rowSums(dem_to_rep$X[, predictorsGrouping[["Age"]]])  ) )
+
+print( paste(rep("-", 100), sep ='', collapse = ''))
+print( "mean: dem_to_dem")
+round(dem_to_dem$means[ predictorsGrouping$Age],5)
+mean( 1-  as.vector(rowSums(dem_to_dem$X[, predictorsGrouping[["Age"]]])  ) )
+
+print( paste(rep("-", 100), sep ='', collapse = ''))
+print( "mediam: dem_to_dem")
+round(dem_to_dem$medians[ predictorsGrouping$Age],5)
+median( 1-  as.vector(rowSums(dem_to_dem$X[, predictorsGrouping[["Age"]]])  ) )
+
+```
+
+
+fit a logistic model.
+Will use lasso to find important variabels
+```{r}
+{ # get the data
+  x <- rbind(  dem_to_dem$X, dem_to_rep$X  )
+  x$`Land Area` <- NULL
+  y <-  data.frame( 'switched'=as.factor(c( rep(0, nrow(dem_to_dem$X)), rep(1, nrow(dem_to_rep$X))  ) ))
+  df= cbind(x,y)
+}
+
+{ # get training and test dta
+  set.seed(1)
+  testsize = 200
+  training_Indexes <- sample( c(1:nrow(x)), nrow(x)-testsize )
+  testingIndex = setdiff( c(1:nrow(x)), training_Indexes)
+  df_train <- df[training_Indexes, ]
+}
+
+{ # fit using lasso
+  cv.out <- cv.glmnet( as.matrix(x),as.matrix(y),alpha=1,family='binomial' )
+  plot(cv.out)
+  lambda_min <- cv.out$lambda.min
+  lambda_1se <- cv.out$lambda.1se
+  coef(cv.out,s=lambda_1se)
+}
+
+# accuracy on test data
+sum( round( predict(cv.out, as.matrix(x[ testingIndex , ]) ,type="response") ) == y[testingIndex,]) / testsize
+
+
+# Also fitted models using stepwise
+{ # use stepwise 
+  # model 1
+  model.min <- glm( switched ~1, data = df_train, family = 'binomial' )
+  model.max <- formula(lm(switched~. ,df_train))
+  fittedModel1 = step(model.min, direction='both', scope=model.max)
+  sum( round( predict(fittedModel1, x[ testingIndex , ],type="response") ) == y[testingIndex,]) / testsize
+  summary(fittedModel1)
+  
+    # model 2
+  model.min <- glm( switched ~1+ `Bachelors (%)`, data = df_train, family = 'binomial' )
+  model.max <- formula(lm(switched~. ,df_train))
+  fittedModel2 = step(model.min, direction='both', scope=model.max)
+  sum( round( predict(fittedModel2, x[ testingIndex , ],type="response") ) == y[testingIndex,]) / testsize
+  summary(fittedModel2)
+  
+  # model 3
+  model.min <- glm( switched ~1+`Race: White (%)`, data = df_train, family = 'binomial' )
+  model.max <- formula(lm(switched~. ,df_train))
+  fittedModel3 = step(model.min, direction='both', scope=model.max)
+  sum( round( predict(fittedModel3, x[ testingIndex , ],type="response") ) == y[testingIndex,]) / testsize
+  summary(fittedModel3)
+  
+  # model 4
+  model.min <- glm( switched ~1+`Race: White (%)` + `Bachelors (%)`, data = df_train, family = 'binomial' )
+  model.max <- formula(lm(switched~. ,df_train))
+  fittedModel4 = step(model.min, direction='both', scope=model.max)
+  sum( round( predict(fittedModel4, x[ testingIndex , ],type="response") ) == y[testingIndex,]) / testsize
+  summary(fittedModel4)
+}
+
+
+```
+
+
+Lets look more closely at white/bachelor relationship
+```{r}
+{ # Scatter plot of bachelor vs. white with county gouping
+ggplot() + geom_point(data=df, aes( x = `Race: White (%)`, y =`Bachelors (%)`, colour=switched  )) +
+  scale_colour_manual(  values = c(colors$dem.Blue, colors$rep.Red), labels=c("Remained", "Switched"), name="County Group") +
+  scale_y_continuous(labels=percent) + scale_x_continuous(labels=percent) +
+  ylab("Bachelors (%)") + xlab("White Population (%)") +
+  ggtitle("Counties by Education and Race") +
+  theme( axis.text.x = element_text(size = 12), 
+         axis.text.y = element_text(size = 12),
+         axis.title.y = element_text(size = 14),
+         axis.title.x = element_text(size = 14),
+         plot.title = element_text(size = 20)  )
+}    
+
+
+{ # fit logistic with white and bachelor and plot probabilities
+  
+  { # fit using lasso only using white and bachelor
+    cv.out2 <- cv.glmnet( as.matrix(df_train[, c("Race: White (%)", "Bachelors (%)")] ),as.matrix(df_train$switched),alpha=1,family='binomial' )
+    coef = coef(cv.out2,s=lambda_1se)
+    sum( round( predict(cv.out2, as.matrix(x[testingIndex, c("Race: White (%)", "Bachelors (%)")]) ,type="response") ) == y[testingIndex,]) / testsize
+  }
+  
+  
+  p <- function( white )
+  {
+    logOdd <- coef['(Intercept)', 1] + coef['Race: White (%)', 1] * white + coef['Bachelors (%)', 1] * bachelor_per
+    return( 1/(1+exp(-logOdd)) )
+  }
+  bachelor_per <- seq(0.1, 0.5, length.out=200) 
+  ggplot() +geom_line( aes(x=bachelor_per, y = p(0.2), colour = 'white: 20%'    )) +
+            geom_line( aes(x=bachelor_per, y = p(0.5), colour = 'white: 50%'  )) +
+            geom_line( aes(x=bachelor_per, y = p(0.75), colour = 'white: 75%'  )) +
+            scale_color_manual("", breaks=c('white: 20%','white: 50%','white: 75%' ), values=c("red", "blue","green")) +
+            scale_y_continuous(labels=percent) + scale_x_continuous(labels=percent) +
+            xlab("Bachelors (%)") + ylab("Estimated Probability") +
+            ggtitle("Probability of Switch") +
+            theme( axis.text.x = element_text(size = 12), 
+                   axis.text.y = element_text(size = 12),
+                   axis.title.y = element_text(size = 14),
+                   axis.title.x = element_text(size = 14),
+                   plot.title = element_text(size = 20)  )
+}
+
+# correlations 
+colnames(x)[cor(x[,"Bachelors (%)"], x) < -.2]
+colnames(x)[cor(x[,"Race: White (%)"], x) > .2]
+
+
+```

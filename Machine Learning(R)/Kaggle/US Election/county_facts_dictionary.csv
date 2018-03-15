@@ -1,0 +1,52 @@
+column_name,description,New Name,Convert To Percent,Convert to per pop
+PST045214,"Population, 2014 estimate",Population,n,n
+PST040210,"Population, 2010 (April 1) estimates base",Delete,n,n
+PST120214,"Population, percent change - April 1, 2010 to July 1, 2014",Population Change (%),y,n
+POP010210,"Population, 2010",Delete,n,n
+AGE135214,"Persons under 5 years, percent, 2014",Age: < 5 (%),y,n
+AGE295214,"Persons under 18 years, percent, 2014",Age: < 18 (%),y,n
+AGE775214,"Persons 65 years and over, percent, 2014",Age:  > 65 (%),y,n
+SEX255214,"Female persons, percent, 2014",Female (%),y,n
+RHI125214,"White alone, percent, 2014",Delete,y,n
+RHI225214,"Black or African American alone, percent, 2014",Race: Black (%),y,n
+RHI325214,"American Indian and Alaska Native alone, percent, 2014",Race: Native (%),y,n
+RHI425214,"Asian alone, percent, 2014",Race: Asian (%),y,n
+RHI525214,"Native Hawaiian and Other Pacific Islander alone, percent, 2014",Race: Hawaiian (%),y,n
+RHI625214,"Two or More Races, percent, 2014",Raced: Mixed (%),y,n
+RHI725214,"Hispanic or Latino, percent, 2014",Raced: Latino (%),y,n
+RHI825214,"White alone, not Hispanic or Latino, percent, 2014",Race: White (%),y,n
+POP715213,"Living in same house 1 year & over, percent, 2009-2013",Pop: Living in same place for a year (%),y,n
+POP645213,"Foreign born persons, percent, 2009-2013",Pop: Foreign Born (%),y,n
+POP815213,"Language other than English spoken at home, pct age 5+, 2009-2013",Non English Language spoken (%),y,n
+EDU635213,"High school graduate or higher, percent of persons age 25+, 2009-2013",High School grad (%),y,n
+EDU685213,"Bachelor's degree or higher, percent of persons age 25+, 2009-2013",Bachelors (%),y,n
+VET605213,"Veterans, 2009-2013",Veterans,n,y
+LFE305213,"Mean travel time to work (minutes), workers age 16+, 2009-2013",Mean Travel Time to work,n,n
+HSG010214,"Housing units, 2014",Delete,n,y
+HSG445213,"Homeownership rate, 2009-2013",House: Homeownership Rate (%),y,n
+HSG096213,"Housing units in multi-unit structures, percent, 2009-2013",House: Multi-unit housing (%),y,n
+HSG495213,"Median value of owner-occupied housing units, 2009-2013",House: Median Value,n,n
+HSD410213,"Households, 2009-2013",Delete,n,n
+HSD310213,"Persons per household, 2009-2013",House: Person per household,n,n
+INC910213,"Per capita money income in past 12 months (2013 dollars), 2009-2013",Income: per capital,n,n
+INC110213,"Median household income, 2009-2013",Income: household income,n,n
+PVY020213,"Persons below poverty level, percent, 2009-2013",Porverty rate (%),y,n
+BZA010213,"Private nonfarm establishments, 2013",Economy: nonfarm business,n,y
+BZA110213,"Private nonfarm employment,  2013",Economy: nonfarm employment,n,y
+BZA115213,"Private nonfarm employment, percent change, 2012-2013",Economy: nonfarm employment % change,y,n
+NES010213,"Nonemployer establishments, 2013",Economy: Nonemployer establishments,n,y
+SBO001207,"Total number of firms, 2007",Economy: num of firms,n,y
+SBO315207,"Black-owned firms, percent, 2007",Economy: Black-owned firms (%),y,n
+SBO115207,"American Indian- and Alaska Native-owned firms, percent, 2007",Economy: Ind and Alaska Native owned firms (%),y,n
+SBO215207,"Asian-owned firms, percent, 2007",Economy: Asian firms (%),y,n
+SBO515207,"Native Hawaiian- and Other Pacific Islander-owned firms, percent, 2007",Economy: Haw and Other Pacific Islander owned firms (%),y,n
+SBO415207,"Hispanic-owned firms, percent, 2007",Economy: Hispanic-owned firms (%),y,n
+SBO015207,"Women-owned firms, percent, 2007",Economy: Women owned firms (%),y,n
+MAN450207,"Manufacturers shipments, 2007 ($1,000)",Economy: Manufacturers shipments,n,y
+WTN220207,"Merchant wholesaler sales, 2007 ($1,000)",Economy: wholesaler sales,n,y
+RTN130207,"Retail sales, 2007 ($1,000)",Economy: Retail sales,n,y
+RTN131207,"Retail sales per capita, 2007",Economy: sale per capita,n,n
+AFN120207,"Accommodation and food services sales, 2007 ($1,000)",Economy: Acc. And food servces sales,n,y
+BPS030214,"Building permits, 2014",Economy: Building permits,n,y
+LND110210,"Land area in square miles, 2010",Land Area,n,n
+POP060210,"Population per square mile, 2010",Population density,n,n

@@ -10,23 +10,17 @@ class WorldBank():
 
     def __init__(self):
         self.indicators = {"GDP" : "NY.GDP.MKTP.CD", "Population Growth": "SP.POP.GROW" }
-        self.countries = self.getAllCountries()
+        self.getWorldMap()
         self.selectedCountry = 'USA'
         self.selectedIndicator = 'GDP'
         self.selectedData = None
         
-    def getAllCountries( self ):
-        par = {"per_page": '1000', 'format' : "json"}
-        url = "http://api.worldbank.org/v2/countries"
-        response = requests.get( url, params=par)
-        if response == False:
-            print('fail')
-            return
-        countries = [[],[]]
-        for i in response.json()[1]:
-            countries[0].append( i['id'] )
-            countries[1].append( i['name'] )
-        return countries
+    def getWorldMap( self ):
+        shpfilename = shpreader.natural_earth(resolution='110m', category='cultural', name='admin_0_countries')
+        self.reader = shpreader.Reader(shpfilename)
+        self.countries = {}
+        for country in self.reader.records():
+            self.countries[ country.attributes['BRK_NAME'] ] =  country.attributes['ISO_A3']
 
     def getData( self, country , indicator  ):
         #url = "http://api.worldbank.org/v2/countries/" + country + "/indicators/" + indicators[indicator] + "?per_page=1000&date=2000:2018&format=json"
@@ -58,14 +52,10 @@ class WorldBank():
     def plotWorld( self, ax ):
         ax = plt.axes(projection=ccrs.PlateCarree())
         ax.add_feature(cartopy.feature.OCEAN)
-
-        shpfilename = shpreader.natural_earth(resolution='110m', category='cultural', name='admin_0_countries')
-        reader = shpreader.Reader(shpfilename)
-        countries = reader.records()
-
-        for country in countries:
+        for country in self.reader.records():
             if country.attributes['ISO_A3'] == self.selectedCountry:
                 ax.add_geometries(country.geometry, ccrs.PlateCarree(), facecolor=(0, 0, 1))
             else:
                 ax.add_geometries(country.geometry, ccrs.PlateCarree(),  facecolor=(0, 1, 0))
         return( ax )
+

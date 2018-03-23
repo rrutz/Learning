@@ -7,17 +7,16 @@ class GUI_Plots_Pannel( QVBoxLayout ):
     def __init__( self, worldBank , parent = None):
         super( GUI_Plots_Pannel, self ).__init__( parent )
         self.worldBank = worldBank
-
         self.addFigures()
-        self.addWidget( self.canvas )   
-        self.addWidget( self.canvas_world )
         self.layerOn = False
 
     def addFigures( self ):
         self.figure = plt.figure()
         self.canvas = FigureCanvas(self.figure)
+        self.addWidget( self.canvas )   
         self.figure_world = plt.figure()
         self.canvas_world = FigureCanvas(self.figure_world)
+        self.addWidget( self.canvas_world )
 
     def updatePlots( self ):
         if self.layerOn == False:

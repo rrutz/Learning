@@ -1,4 +1,3 @@
-
 from PyQt5.QtWidgets import QListWidget, QCheckBox, QGridLayout
 
 class GUI_List_Pannel( QGridLayout ):
@@ -13,7 +12,7 @@ class GUI_List_Pannel( QGridLayout ):
 
     def addCountryList( self ):
         self.countryList = QListWidget()
-        self.countryList.addItems( self.worldBank.countries[1] )
+        self.countryList.addItems( self.worldBank.countries.keys() ) 
         self.countryList.currentItemChanged.connect(self.update)
         self.addWidget( self.countryList, 0, 0 )
 
@@ -29,8 +28,8 @@ class GUI_List_Pannel( QGridLayout ):
         self.addWidget( self.checkBox, 1, 0, 2, 0 )
 
     def update( self ):
-        selected_index = self.countryList.currentRow()
-        self.worldBank.selectedCountry = self.worldBank.countries[0][ selected_index ]
+        selected_country = self.countryList.currentItem().text()
+        self.worldBank.selectedCountry = self.worldBank.countries[selected_country]
         self.worldBank.getData( self.worldBank.selectedCountry, self.worldBank.selectedIndicator )
         self.plotPannel.updateCountryMap()
         self.plotPannel.updatePlots()

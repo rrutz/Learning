@@ -1,0 +1,13 @@
+- Goal
+	- make a simple 2D platforming game similar to Mario
+	
+- Phase 1
+	- One window
+	- make environment
+	- make main character
+		- sprites
+		- move and jump
+	- make bad guys
+		- simple AI: just walk back and forth 
+		- get killed when jumped on
+		

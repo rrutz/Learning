@@ -11,6 +11,7 @@ Mario::Mario()
 	}
 	else
 	{
+		// walking right sprites
 		for (int i = 0; i < 4; i++)
 		{
 			sf::Sprite sprite;
@@ -20,6 +21,7 @@ Mario::Mario()
 			sprites.emplace_back( sprite );
 		}
 
+		// walking left sprites
 		for (int i = 1; i < 4; i++)
 		{
 			sf::Sprite sprite;
@@ -31,35 +33,32 @@ Mario::Mario()
 	}
 }
 
-void Mario::move(float dx, float dy)
+void Mario::move(float dt, int xDir, int yDir)
 {
-	xPos += dx;
-	yPos += dy;
-
-	if (dx > 0)
+	if (xDir > 0)
 	{
-		holdTime--;
-		if (holdTime < 0)
+		FrameTime--;
+		if (FrameTime < 0)
 		{
 			currentFrame++;
 			if(currentFrame >= 4)
 			{
 				currentFrame = 1;
 			}
-			holdTime = 50;
+			FrameTime = 50;
 		}
 	}
-	else if (dx < 0)
+	else if (xDir < 0)
 	{
-		holdTime--;
-		if (holdTime < 0)
+		FrameTime--;
+		if (FrameTime < 0)
 		{
 			currentFrame++;
 			if (currentFrame == 7)
 			{
 				currentFrame = 4;
 			}
-			holdTime = 50;
+			FrameTime = 50;
 		}
 	}
 	else 
@@ -67,10 +66,27 @@ void Mario::move(float dx, float dy)
 		currentFrame = 0;
 	}
 
+	yVel = 0.0f;
+	if (isJumping)
+	{
+		yDir = 1.0f;
+		yVel = -1.3f;
+		jumpTime--;
+		if (jumpTime < 0)
+		{
+			isJumping = false;
+			jumpTime = 500;
+		}
+	}
+	xPos += xVel * dt*xDir;
+	yPos += (yVel+gravity) * dt*yDir;
+
 }
 
 void Mario::jump()
 {
+	if(yVel ==  0.0f )
+		isJumping = true;
 }
 
 void Mario::draw(sf::RenderWindow& window)

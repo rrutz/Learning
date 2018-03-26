@@ -1,6 +1,5 @@
 #include "world.h"
 
-
 Title::Title(bool isSolid, sf::Color color, int title_width, int title_height, int xPos, int yPos)
 	:
 	isSolid(isSolid),
@@ -25,6 +24,11 @@ World::World(int nHeight, int nWidth, int pixel_Height, int pixel_Width)
 	world.push_back(Title(true, sf::Color::Green, groundWidth, groundHeight, 0, pixel_Height - groundHeight));
 
 	// create bricks
+	world.push_back(Title(true, sf::Color::Black, 100.0f, 50.0f, 100.0f, pixel_Height - groundHeight - 80.f));
+	world.push_back(Title(true, sf::Color::Black, 100.0f, 50.0f, 300.0f, pixel_Height - groundHeight - 200.f));
+	world.push_back(Title(true, sf::Color::Black, 100.0f, 50.0f, 100.0f, pixel_Height - groundHeight - 200.f));
+	world.push_back(Title(true, sf::Color::Black, 100.0f, 50.0f, 500.0f, pixel_Height - groundHeight - 300.f));
+	world.push_back(Title(true, sf::Color::Black, 100.0f, 50.0f, 700.0f, pixel_Height - groundHeight - 400.f));
 }
 
 void World::draw(sf::RenderWindow& window)

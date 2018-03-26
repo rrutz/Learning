@@ -2,6 +2,7 @@
 #include <string>
 #include <SFML/Graphics.hpp>
 #include <iostream>
+#include <cmath>
 
 Mario::Mario()
 {
@@ -33,11 +34,11 @@ Mario::Mario()
 	}
 }
 
-void Mario::move(float dt, int xDir, int yDir)
+void Mario::move(float dt)
 {
 	if (xDir > 0)
 	{
-		FrameTime--;
+		FrameTime -= dt;
 		if (FrameTime < 0)
 		{
 			currentFrame++;
@@ -45,12 +46,12 @@ void Mario::move(float dt, int xDir, int yDir)
 			{
 				currentFrame = 1;
 			}
-			FrameTime = 50;
+			FrameTime = 0.05f;
 		}
 	}
 	else if (xDir < 0)
 	{
-		FrameTime--;
+		FrameTime -= dt;
 		if (FrameTime < 0)
 		{
 			currentFrame++;
@@ -58,7 +59,7 @@ void Mario::move(float dt, int xDir, int yDir)
 			{
 				currentFrame = 4;
 			}
-			FrameTime = 50;
+			FrameTime = 0.05f;
 		}
 	}
 	else 
@@ -66,27 +67,25 @@ void Mario::move(float dt, int xDir, int yDir)
 		currentFrame = 0;
 	}
 
-	yVel = 0.0f;
-	if (isJumping)
+	yVel = 500.0f;
+	if(isJumping)
 	{
-		yDir = 1.0f;
-		yVel = -1.3f;
-		jumpTime--;
+		jumpTime -= dt;
 		if (jumpTime < 0)
 		{
 			isJumping = false;
-			jumpTime = 500;
+			jumpTime = 0.3f;
 		}
 	}
 	xPos += xVel * dt*xDir;
-	yPos += (yVel+gravity) * dt*yDir;
+	yPos += yVel * dt*yDir;
 
 }
 
 void Mario::jump()
 {
-	if(yVel ==  0.0f )
-		isJumping = true;
+	isJumping = true;
+	yDir = -1.0f;
 }
 
 void Mario::draw(sf::RenderWindow& window)
@@ -95,7 +94,18 @@ void Mario::draw(sf::RenderWindow& window)
 	window.draw(sprites[currentFrame]);
 }
 
-bool Mario::checkCollsionY(float topY)
+void Mario::checkCollsionY( sf::FloatRect rect)
 {
-	return(yPos + sprites[0].getTextureRect().height*2> topY);
+	//std::cout << rect.top;
+
+	sf::FloatRect marioRect = sprites[currentFrame].getGlobalBounds();
+	if (marioRect.left + marioRect.width > rect.left  && xPos < rect.left + rect.width)
+	{
+			
+		if (pow((marioRect.top + marioRect.height) - rect.top, 2) < 4.0f)
+		{
+			yDir = 0.0f;
+		}
+	}
+
 }

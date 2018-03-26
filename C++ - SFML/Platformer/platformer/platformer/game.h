@@ -2,6 +2,7 @@
 #include "mario.h"
 #include "world.h"
 
+
 class Game
 {
 public:
@@ -19,4 +20,5 @@ private:
 
 	Mario mario = Mario();
 	World world = World(25, 50, pixel_Height, pixel_Width);
+	sf::Clock clock = sf::Clock::Clock();
 };

@@ -1,0 +1,8 @@
+﻿  main.cpp
+c:\users\ruedi\onedrive\learning\learning\c++ - sfml\platformer\platformer\platformer\world.cpp(15): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\ruedi\onedrive\learning\learning\c++ - sfml\platformer\platformer\platformer\world.cpp(17): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+  world.cpp
+c:\users\ruedi\onedrive\learning\learning\c++ - sfml\platformer\platformer\platformer\world.cpp(15): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+c:\users\ruedi\onedrive\learning\learning\c++ - sfml\platformer\platformer\platformer\world.cpp(17): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+  Generating Code...
+sfml-graphics-s-d.lib(RenderStates.cpp.obj) : fatal error LNK1112: module machine type 'x64' conflicts with target machine type 'x86'

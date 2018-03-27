@@ -5,11 +5,12 @@
 class Title : public sf::RectangleShape
 {
 public:
-	Title(bool isSolid, sf::Color color, int title_width, int title_height, int xPos, int yPos);
+	Title(bool topSolid, bool allSolid, sf::Color color, int title_width, int title_height, int xPos, int yPos);
 public:
 	float title_width;
 	float title_height;
-	bool isSolid;
+	bool topSolid;
+	bool allSolid;
 };
 
 class World

@@ -48,19 +48,39 @@ void Game::updateWorld()
 		}
 	}
 
+
+	badGuy.yDir = 1.0f;
+	badGuy2.yDir = 1.0f;
 	if (!mario.isJumping)
 	{
 		mario.yDir = 1.0f;
-		for (auto title = world.world.begin(); title < world.world.end(); title++)
+	}
+	for (auto title = world.world.begin(); title < world.world.end(); title++)
+	{
+		if (title->topSolid)
 		{
-			if (title->isSolid)
+			badGuy.checkFalling(title->getGlobalBounds());
+			badGuy2.checkFalling(title->getGlobalBounds());
+			if (!mario.isJumping)
 			{
-				mario.checkCollsionY(title->getGlobalBounds());
+				mario.checkFalling(title->getGlobalBounds());
 			}
+		}
+		if (title->allSolid)
+		{
+			mario.checkCollsionY(title->getGlobalBounds());
+			mario.checkCollsionX(title->getGlobalBounds());
+			badGuy.checkCollsionX(title->getGlobalBounds());
+			badGuy2.checkCollsionX(title->getGlobalBounds());
 		}
 	}
 
+
+
+
 	mario.move(dt*1000);
+	badGuy.move(dt * 1000);
+	badGuy2.move(dt * 1000);
 }
 
 void Game::updateFrame()
@@ -68,6 +88,8 @@ void Game::updateFrame()
 	window.clear(sf::Color::Blue);
 	world.draw(window);
 	mario.draw(window);
+	badGuy.draw(window);
+	badGuy2.draw(window);
 	window.display();
 }
 

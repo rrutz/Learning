@@ -1,10 +1,10 @@
-#include "mario.h"
+#include "badGuy.h"
 #include <string>
 #include <SFML/Graphics.hpp>
-#include <iostream>
 #include <cmath>
+#include <iostream>
 
-Mario::Mario()
+BadGuy::BadGuy()
 {
 	if (!texture.loadFromFile("Characters_Sprites\\Mario & Luigi.png"))
 	{
@@ -17,9 +17,9 @@ Mario::Mario()
 		{
 			sf::Sprite sprite;
 			sprite.setTexture(texture);
-			sprite.setTextureRect(sf::IntRect(80+17*i, 1, 16, 31));
+			sprite.setTextureRect(sf::IntRect(80 + 17 * i, 1, 16, 31));
 			sprite.setScale(2.0f, 2.0f);
-			sprites.emplace_back( sprite );
+			sprites.emplace_back(sprite);
 		}
 
 		// walking left sprites
@@ -27,14 +27,14 @@ Mario::Mario()
 		{
 			sf::Sprite sprite;
 			sprite.setTexture(texture);
-			sprite.setTextureRect(sf::IntRect(95+17*i+1, 1, -15, 31));
+			sprite.setTextureRect(sf::IntRect(95 + 17 * i + 1, 1, -15, 31));
 			sprite.setScale(2.0f, 2.0f);
-			sprites.emplace_back( sprite );
+			sprites.emplace_back(sprite);
 		}
 	}
 }
 
-void Mario::move(float dt)
+void BadGuy::move(float dt)
 {
 	if (xDir > 0)
 	{
@@ -42,7 +42,7 @@ void Mario::move(float dt)
 		if (FrameTime < 0)
 		{
 			currentFrame++;
-			if(currentFrame >= 4)
+			if (currentFrame >= 4)
 			{
 				currentFrame = 1;
 			}
@@ -62,39 +62,24 @@ void Mario::move(float dt)
 			FrameTime = 0.05f;
 		}
 	}
-	else 
+	else
 	{
 		currentFrame = 0;
 	}
 
-	yVel = 500.0f;
-	if(isJumping)
-	{
-		jumpTime -= dt;
-		if (jumpTime < 0)
-		{
-			isJumping = false;
-			jumpTime = 0.3f;
-		}
-	}
 	xPos += xVel * dt*xDir;
 	yPos += yVel * dt*yDir;
 
 }
 
-void Mario::jump()
-{
-	isJumping = true;
-	yDir = -1.0f;
-}
 
-void Mario::draw(sf::RenderWindow& window)
+void BadGuy::draw(sf::RenderWindow& window)
 {
 	sprites[currentFrame].setPosition(xPos, yPos);
 	window.draw(sprites[currentFrame]);
 }
 
-void Mario::checkFalling( sf::FloatRect rect)
+void BadGuy::checkFalling(sf::FloatRect rect)
 {
 	sf::FloatRect marioRect = sprites[currentFrame].getGlobalBounds();
 	if (marioRect.left + marioRect.width > rect.left  && xPos < rect.left + rect.width)
@@ -106,20 +91,8 @@ void Mario::checkFalling( sf::FloatRect rect)
 	}
 }
 
-void Mario::checkCollsionY(sf::FloatRect rect)
-{
-	sf::FloatRect marioRect = sprites[currentFrame].getGlobalBounds();
-	if (marioRect.left + marioRect.width > rect.left  && xPos < rect.left + rect.width)
-	{
-		if (pow(marioRect.top  - (rect.top + rect.height), 2) < 4.0f)
-		{
-			isJumping = false;
-			jumpTime = 0.3f;
-		}
-	}
-}
 
-void Mario::checkCollsionX(sf::FloatRect rect)
+void BadGuy::checkCollsionX(sf::FloatRect rect)
 {
 	sf::FloatRect marioRect = sprites[currentFrame].getGlobalBounds();
 
@@ -128,24 +101,25 @@ void Mario::checkCollsionX(sf::FloatRect rect)
 	float rectT = rect.top;
 	float rectB = rect.top + rect.height;
 
-	if ( (marioT < rectT && rectT < marioB ) || (marioB > rectB && rectB > marioT) || (marioT > rectT && marioB < rectB) )
+	if ((marioT < rectT && rectT < marioB) || (marioB > rectB && rectB > marioT) || (marioT > rectT && marioB < rectB))
 	{
 		if (xDir > 0)
 		{
-			if (pow((marioRect.left + marioRect.width) - rect.left, 2) < 4.0f)
+			if (pow((marioRect.left + marioRect.width) - rect.left, 2) < 8.0f)
 			{
-				xDir = 0.0f;
+				xDir = -xDir;
 			}
 		}
 		if (xDir < 0)
 		{
-			if (pow( marioRect.left  - (rect.left + rect.width), 2) < 4.0f)
+			if (pow(marioRect.left - (rect.left + rect.width), 2) < 8.0f)
 			{
-				xDir = 0.0f;
+				xDir = -xDir;
 			}
 		}
 
 	}
 }
+
 
 

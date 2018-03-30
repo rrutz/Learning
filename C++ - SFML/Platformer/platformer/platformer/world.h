@@ -1,18 +1,14 @@
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <vector>
+#include "rect.h"
 
-class Title : public sf::RectangleShape
+class WorldObject : public sf::RectangleShape
 {
 public:
-	Title(bool topSolid, bool allSolid, sf::Color color, float title_width, float title_height, float xPos, float yPos);
+	WorldObject(float xL, float xR, float yT, float yB, bool topSolid, bool bottomSolid, bool leftSolid, bool rightSolid, sf::Color color);
 public:
-	float title_width;
-	float title_height;
-	float xPos;
-	float yPos;
-	bool topSolid;
-	bool allSolid;
+	Rect rect;
 };
 
 class World
@@ -22,7 +18,7 @@ public:
 	void draw(sf::RenderWindow& window);
 
 public:
-	std::vector<Title> world;
+	std::vector<WorldObject> world;
 
 private:
 	int nHeight;

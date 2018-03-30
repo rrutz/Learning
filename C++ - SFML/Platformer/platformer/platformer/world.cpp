@@ -1,17 +1,12 @@
 #include "world.h"
-
-Title::Title(bool topSolid, bool allSolid, sf::Color color, float title_width, float title_height, float xPos, float yPos)
+#include <iostream>
+WorldObject::WorldObject(float xL, float xR, float yT, float yB, bool topSolid, bool bottomSolid, bool leftSolid, bool rightSolid, sf::Color color)
 	:
-	topSolid(topSolid), 
-	allSolid(allSolid),
-	title_width(title_width),
-	title_height(title_height),
-	xPos( xPos ),
-	yPos( yPos ),
-	sf::RectangleShape(sf::RectangleShape(sf::Vector2f(title_width, title_height)))
+	rect( Rect( xL,  xR,  yT,  yB,  topSolid,  bottomSolid,  leftSolid,  rightSolid ) ),
+	sf::RectangleShape(sf::RectangleShape(sf::Vector2f(xR - xL, yB - yT)))
 {
 	setFillColor(color);
-	setPosition(xPos, yPos);
+	setPosition(rect.xL, rect.yT);
 }
 
 World::World(int nHeight, int nWidth, float pixel_Height, float pixel_Width)
@@ -22,31 +17,31 @@ World::World(int nHeight, int nWidth, float pixel_Height, float pixel_Width)
 	pixel_Width(pixel_Width)
 {
 	// create ground
-	float groundWidth = pixel_Width;
 	float groundHeight = 80.0f;
-	world.push_back(Title(true, true, sf::Color::Green, groundWidth, groundHeight, 0, pixel_Height - groundHeight));
-
-	// create bricks
-	world.push_back(Title(true, true, sf::Color::Red, 75.0f, 200.0f, 100.0f, pixel_Height - groundHeight - 80.f));
+	world.push_back(WorldObject(0, pixel_Width, pixel_Height - groundHeight, pixel_Height, true, true, true, true, sf::Color::Green));
 	
-	world.push_back(Title(true, false, sf::Color::Black, 100.0f, 50.0f, 300.0f, pixel_Height - groundHeight - 200.f));
-	world.push_back(Title(true, false, sf::Color::Black, 100.0f, 50.0f, 100.0f, pixel_Height - groundHeight - 200.f));
-	world.push_back(Title(true, false, sf::Color::Black, 100.0f, 50.0f, 500.0f, pixel_Height - groundHeight - 300.f));
-	world.push_back(Title(true, true, sf::Color::Black, 100.0f, 50.0f, 700.0f, pixel_Height - groundHeight - 400.f));
-	world.push_back(Title(true, true, sf::Color::Red, 100.0f, 50.0f, 550.0f, pixel_Height - groundHeight - 500.f));
-
-	world.push_back(Title(true, true, sf::Color::Red, 25.0f, pixel_Height, 0.0f, 0.0f));
-	world.push_back(Title(true, true, sf::Color::Red, 25.0f, pixel_Height, pixel_Width -25.0f, 0.0f));
+	// create walls
+	world.push_back(WorldObject(0, 10, 0, pixel_Height, true, true, true, true, sf::Color::Red));
+	world.push_back(WorldObject(pixel_Width-10, pixel_Width, 0, pixel_Height, true, true, true, true, sf::Color::Red));
 
 
-	world.push_back(Title(true, true, sf::Color::Red, 10.0f, 100.0f, 900.0f, pixel_Height - groundHeight - 400.f));
-	world.push_back(Title(true, false, sf::Color::Black, 400.0f, 50.0f, 900.0f, pixel_Height - groundHeight - 300.f));
+	// create walls
+	world.push_back(WorldObject(100, 150, pixel_Height-200, pixel_Height-150, true, true, true, true, sf::Color::Red));
+	world.push_back(WorldObject(200, 250, pixel_Height - 200, pixel_Height - 150, true, false, false, false, sf::Color::Black));
+
+	world.push_back(WorldObject(200, 250, pixel_Height - 200, pixel_Height - 150, true, false, false, false, sf::Color::Black));
+
+	world.push_back(WorldObject(400, 450, 500, 550, true, false, false, false, sf::Color::Black));
+
+	world.push_back(WorldObject(500, 650, 400, 450, true, false, false, false, sf::Color::Black));
+
+
 }
 
 void World::draw(sf::RenderWindow& window)
 {
-	for (auto title = world.begin(); title != world.end(); title++)
+	for (auto worldObject = world.begin(); worldObject != world.end(); worldObject++)
 	{
-		window.draw(*title);
+		window.draw(*worldObject);
 	}
 }

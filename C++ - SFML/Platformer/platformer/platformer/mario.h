@@ -9,10 +9,10 @@ public:
 	Mario(std::string imagePath );
 	void jump();
 	void jumping(float dt);
-	void checkCollsionX2(float xPos_in, float yPos_in, float width_in, float height_in, float dt);
-	void checkCollsionY2(sf::FloatRect rect);
-	void isKilled(float xPos_in, float yPos_in, float width_in, float height_in, float dt);
-	bool kills(sf::FloatRect rect);
+	void checkCollisions(Rect rect_in, float dt_in);
+	void isKilled(Rect rect_in, float dt_in);
+	bool kills(Rect rect_in, float dt_in);
+
 private:
 
 public:

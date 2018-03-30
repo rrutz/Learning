@@ -2,8 +2,10 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <cmath>
-
-Character::Character( std::string imagePath)
+#include <iostream>
+Character::Character( std::string imagePath, float scale, int pixelWidth, int pixelHeight, float x, float y)
+	:
+	rect( { x, x + pixelWidth * scale, y, y + pixelHeight * scale, true, true, true, true })
 {
 	if (!texture.loadFromFile( imagePath ))
 	{
@@ -16,8 +18,8 @@ Character::Character( std::string imagePath)
 		{
 			sf::Sprite sprite;
 			sprite.setTexture(texture);
-			sprite.setTextureRect(sf::IntRect(80 + 17 * i, 1, 16, 31));
-			sprite.setScale(2.0f, 2.0f);
+			sprite.setTextureRect( sf ::IntRect(80 + (pixelWidth+1) * i, 1, pixelWidth, pixelHeight));
+			sprite.setScale(scale, scale);
 			sprites.emplace_back(sprite);
 		}
 
@@ -26,14 +28,14 @@ Character::Character( std::string imagePath)
 		{
 			sf::Sprite sprite;
 			sprite.setTexture(texture);
-			sprite.setTextureRect(sf::IntRect(95 + 17 * i + 1, 1, -15, 31));
-			sprite.setScale(2.0f, 2.0f);
+			sprite.setTextureRect(sf::IntRect(95 + (pixelWidth + 1) * i, 1, -(pixelWidth-1), pixelHeight));
+			sprite.setScale(scale, scale);
 			sprites.emplace_back(sprite);
 		}
 	}
 }
 
-void Character::walk(float dt)
+void Character::getFrame(float dt)
 {
 	if (xDir > 0)
 	{
@@ -65,55 +67,44 @@ void Character::walk(float dt)
 	{
 		currentFrame = 0;
 	}
-	xPos += xVel * dt*xDir;
-	yPos += yVel * dt*yDir;
+	
+}
+
+void Character::move(float dt)
+{
+	rect.xL += xVel * dt*xDir;
+	rect.xR += xVel * dt*xDir;
+	rect.yT += yVel * dt*yDir;
+	rect.yB += yVel * dt*yDir;
+	getFrame(dt);
 }
 
 void Character::draw(sf::RenderWindow& window)
 {
-	sprites[currentFrame].setPosition(xPos, yPos);
+	sprites[currentFrame].setPosition(rect.xL, rect.yT);
 	window.draw(sprites[currentFrame]);
 }
 
-void Character::checkFalling(sf::FloatRect rect)
+void Character::checkFalling(Rect rect_in, float dt)
 {
-	sf::FloatRect marioRect = sprites[currentFrame].getGlobalBounds();
-	if (marioRect.left + marioRect.width > rect.left  && xPos < rect.left + rect.width)
+	if (yDir > 0)
 	{
-		if (pow((marioRect.top + marioRect.height) - rect.top, 2) < 4.0f)
+		if (rect.CheckTopCollision(rect_in, dt*yVel) )
 		{
-			yDir = 0.0f;
+			yDir = 0.0f;		
 		}
 	}
 }
 
-bool Character::checkCollsionY(sf::FloatRect rect)
+void Character::checkCollsionY(Rect rect_in, float dt)
 {
-	sf::FloatRect marioRect = sprites[currentFrame].getGlobalBounds();
-	if (marioRect.left + marioRect.width > rect.left  && xPos < rect.left + rect.width)
+	if (yDir < 0)
 	{
-		if (pow(marioRect.top - (rect.top + rect.height), 2) < 1.0f)
+		if (rect.checkBottomCollision(rect_in, dt*yVel))
 		{
-			return true;
+			yDir = 1.0f;
 		}
 	}
-	return false;
 }
 
-Character::CollisionType Character::checkCollsionX( float xPos_in, float yPos_in, float width_in, float height_in, float dt)
-{
-	float rectT = yPos_in;
-	float rectB = yPos_in + height_in;
-	float marioB = yPos + height;
-
-	if ((yPos <= rectT && rectT <= marioB) || (marioB > rectB && rectB > yPos) || (yPos > rectT && marioB < rectB))
-	{
-		if (xPos + width <= xPos_in && xPos + width + ceil(dt*xVel) > xPos_in)
-		{
-			return CollisionType::Right;
-		}
-		if (xPos >= xPos_in + width_in && xPos - ceil(dt*xVel) < xPos_in + width_in)
-			return CollisionType::Left;
-	}
-}
 

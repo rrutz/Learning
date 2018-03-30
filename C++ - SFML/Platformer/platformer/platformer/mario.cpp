@@ -5,12 +5,11 @@
 
 Mario::Mario( std::string imagePath )
 	:
-	Character( imagePath )
+	Character(imagePath, 2.0f, 16, 31, 100, 400)
 {
+	yDir = 1.0f;
 	xDir = 0;
 	yDir = 0;
-	xPos = 50;
-	yPos = 50;
 }
 
 void Mario::jumping(float dt)
@@ -33,43 +32,42 @@ void Mario::jump()
 	yDir = -1.0f;
 }
 
-void Mario::checkCollsionY2(sf::FloatRect rect)
+void Mario::checkCollisions(Rect rect_in, float dt_in)
 {
-	if (checkCollsionY(rect))
+	if (rect.checkBottomCollision(rect_in, dt_in*yVel))
 	{
 		isJumping = false;
 		jumpTime = 0.3f;
 	}
+
+	checkFalling(rect_in, dt_in);
+
+	if ((xDir > 0 && rect.checkLeftCollision(rect_in, dt_in*xVel)) || (xDir < 0 && rect.checkRightCollision(rect_in, dt_in*xVel)))
+	{
+		xDir = 0;
+	}
 }
 
-void Mario::isKilled(float xPos_in, float yPos_in, float width_in, float height_in, float dt)
+void Mario::isKilled(Rect rect_in, float dt_in)
 {
-	
-	CollisionType collisionType = checkCollsionX( xPos_in,  yPos_in,  width_in,  height_in, dt);
-	
-	if (collisionType == CollisionType::Left || collisionType == CollisionType::Right)
+	if (( rect.checkLeftCollision(rect_in, dt_in*xVel)) || ( rect.checkRightCollision(rect_in, dt_in*xVel)))
 	{
 		xDir = 0;
 		isAlive = false;
 	}
 }
 
-bool Mario::kills(sf::FloatRect rect)
+bool Mario::kills(Rect rect_in, float dt_in)
 {
+	if (yDir > 0)
+	{
+		if (rect.CheckTopCollision(rect_in, dt_in*yVel))
+		{
+			return true;
+		}
+	}
 	return false;
 }
 
-void Mario::checkCollsionX2(float xPos_in, float yPos_in, float width_in, float height_in, float dt)
-{
-	CollisionType collisionType = checkCollsionX(xPos_in, yPos_in, width_in, height_in, dt);
-	if (collisionType == CollisionType::Left && xDir < 0)
-	{
-		 xPos = xPos_in + width_in ; xDir = 0;
-	}
-	if (collisionType == CollisionType::Right && xDir > 0)
-	{
-		xPos = xPos_in - width; xDir = 0;
-	}
-}
 
 

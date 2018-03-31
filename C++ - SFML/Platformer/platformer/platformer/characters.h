@@ -24,7 +24,6 @@ public:
 	float yDir = 1.0f;
 	Rect rect;
 	
-
 private:
 	float FrameTime = 0.05f;
 	int currentFrame = 1;

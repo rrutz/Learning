@@ -1,8 +1,6 @@
 #include <SFML/Graphics.hpp>
 #include "game.h"
 #include <iostream>
-
-
 Game::Game()
 	:
 	window(sf::VideoMode(pixel_Width, pixel_Height), "Kick Ass Game!")
@@ -10,10 +8,12 @@ Game::Game()
 	font.loadFromFile("C:\\Windows\\WinSxS\\amd64_microsoft-windows-font-truetype-arial_31bf3856ad364e35_10.0.16299.15_none_956f9c221e7f8716\\arial.ttf");
 	time_text.setPosition(sf::Vector2f(500, 100));
 	time_text.setFont(font);
-	gameResult_text.setPosition(sf::Vector2f(500, 300));
+	gameResult_text.setPosition(sf::Vector2f(500, 350));
 	gameResult_text.setFont(font);
-	marionext_text.setPosition(sf::Vector2f(400, 200));
+	marionext_text.setPosition(sf::Vector2f(500, 150));
 	marionext_text.setFont(font);
+	bestTime_text.setPosition(sf::Vector2f(500, 200));
+	bestTime_text.setFont(font);
 	restartGame();
 }
 
@@ -29,7 +29,6 @@ void Game::restartGame()
 	mario.rect.yT = 400;
 	mario.rect.yB = 462;
 
-	
 	for (auto badGuy = badGuys.begin(); badGuy != badGuys.end(); badGuy++)
 	{
 		delete (*badGuy);
@@ -43,10 +42,8 @@ void Game::restartGame()
 	clock.restart();
 }
 
-
 int Game::gameLoop()
 {
-
 	while (window.isOpen())
 	{
 		sf::Event event;
@@ -64,6 +61,8 @@ int Game::gameLoop()
 		{
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
 			{
+				if (time < bestTime && n==0)
+					bestTime = time;
 				restartGame();
 			}
 		}
@@ -108,7 +107,6 @@ void Game::updateWorld()
 		mario.move(dt);
 	}
 	
-	
 	for (auto badGuy = badGuys.begin(); badGuy < badGuys.end(); badGuy++)
 	{
 		if ((*badGuy)->isAlive)
@@ -129,6 +127,7 @@ void Game::updateWorld()
 		}
 	}
 
+	// memory leeks here
 	badGuys.erase(std::remove_if(badGuys.begin(), badGuys.end(), []( BadGuy* x) {return !( x->isAlive); }), badGuys.end());
 
 	if (nextMairoCount < 0)
@@ -137,7 +136,6 @@ void Game::updateWorld()
 		nextMairoCount = 5.0f;
 		n++;
 	}
-
 }
 
 void Game::updateFrame()
@@ -169,8 +167,12 @@ void Game::updateFrame()
 		}
 	}
 
+	bestTime_text.setString("Best Time: " + std::to_string(bestTime));
+
+
 	window.draw(time_text);
 	window.draw(marionext_text);
 	window.draw(gameResult_text);
+	window.draw(bestTime_text);
 	window.display();
 }

@@ -8,8 +8,6 @@ class BadGuy : public Character
 public:
 	BadGuy(std::string imagePath);
 	void checkCollisions(Rect rect, float dt);
-
-
 };
 
 

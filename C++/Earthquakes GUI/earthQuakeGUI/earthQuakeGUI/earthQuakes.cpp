@@ -4,6 +4,7 @@
 #include <ctime>
 #include <sstream>  
 #include <iomanip>  
+#include <cmath>
 EarthQuakes::EarthQuake::EarthQuake(int year, float latitude, float longitude, float dept, float magnitude)
 	:
 	year(year),
@@ -22,14 +23,14 @@ EarthQuakes::EarthQuakes(std::string fileIn)
 	for (int lineNum = 0; file_in.good(), i <100; lineNum++, i++)
 	{
 		std::getline(file_in, str);
-		if (lineNum == 0)
+		if (lineNum == 0 || str == "")
 			continue;
 
 		std::istringstream line(str, ',');
 		std::string v;
 		int year;
 		float latitude, longitude, dept, magnitude;
-		for (int col = 0; col < 21, line.good(); col++)
+		for (int col = 0; col < 9, line.good(); col++)
 		{
 			std::getline(line, v, ',');
 			if (col == 0)
@@ -59,8 +60,7 @@ EarthQuakes::EarthQuakes(std::string fileIn)
 				magnitude = std::stof(v);
 			}
 		}
-		if (str != "")
-			earthquakes.push_back(EarthQuake(year, latitude, longitude, dept, magnitude));
+		earthquakes.push_back(EarthQuake(year, latitude, longitude, dept, magnitude));
 	}
 }
 
@@ -86,4 +86,20 @@ float EarthQuakes::average()
 		sum += quake->magnitude;
 	}
 	return sum / count;
+}
+
+float EarthQuakes::variance()
+{
+	float sum_x2 = 0;
+	float sum_x = 0;
+	float n = 0;
+	for (auto quake = earthquakes.begin(); quake < earthquakes.end(); quake++)
+	{
+		sum_x2 += pow(quake->magnitude, 2);
+		sum_x += quake->magnitude;
+		n++;
+	}
+	float mean = sum_x / n;
+	float var = (sum_x2 - 2 * mean* sum_x + pow(mean, 2)*n)/n;
+	return var;
 }

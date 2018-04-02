@@ -6,7 +6,10 @@
 #include <QString>
 #include <QPlainTextEdit>
 #include <QLabel>
+#include "descriptive_Descriptions_Pannel.h"
 #include <QPushButton>
+#include "worldMapPannel.h"
+
 class earthQuakeGUI : public QWidget
 {
 	Q_OBJECT
@@ -16,10 +19,11 @@ public:
 
 	protected slots:
 		void getData();
-		void getAverage();
+		void getDS();
 
-private:
+public:
 	Ui::earthQuakeGUIClass ui;
 	EarthQuakes earthQuakes;
-	QLabel* textoutput;
+	descriptive_Descriptions_Pannel* DS_Panel;
+	WorldMapPannel* worldMap = new WorldMapPannel();
 };

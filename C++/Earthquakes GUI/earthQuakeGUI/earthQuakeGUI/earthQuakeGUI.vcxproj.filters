@@ -39,9 +39,18 @@
     <ClCompile Include="earthQuakes.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="descriptive_Descriptions_Pannel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="worldMapPannel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="earthQuakeGUI.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="descriptive_Descriptions_Pannel.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>
@@ -57,6 +66,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="earthQuakes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="worrldMapData.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="worldMapPannel.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -9,6 +9,7 @@ public:
 	EarthQuakes(std::string fileIn);
 	void print();
 	float average();
+	float variance();
 
 public:
 	class EarthQuake

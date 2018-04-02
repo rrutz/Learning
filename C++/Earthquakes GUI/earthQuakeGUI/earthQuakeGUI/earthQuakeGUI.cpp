@@ -1,46 +1,45 @@
 #include "earthQuakeGUI.h"
 #include <QPushButton>
 #include <QVBoxLayout>
+#include <QGridLayout>
 #include <QSignalMapper>
 #include <QAction>
 #include <QDebug>
 
+
 earthQuakeGUI::earthQuakeGUI(QWidget *parent)
-	: 
-	QWidget(parent)
+	:
+	QWidget(parent),
+	earthQuakes(EarthQuakes("database.csv"))
 {
+	DS_Panel = new descriptive_Descriptions_Pannel(&earthQuakes);
+
 	ui.setupUi(this);
 	this->showMaximized();
 	this->setStyleSheet("background-color: black");
 
-	QVBoxLayout* mainLayout = new QVBoxLayout(this);
+	QGridLayout* mainLayout = new QGridLayout(this);
+	mainLayout->addWidget(worldMap, 0, 0);
 
-	QPushButton* loadFileB = new QPushButton( "Load Data" );
-	loadFileB->setGeometry(0, 0, 100, 50);
-	loadFileB->setStyleSheet("background-color: white");
-	connect(loadFileB, SIGNAL(clicked()), this, SLOT(getData()));
-	mainLayout->addWidget(loadFileB);
+	WorldMapPannel* worldMap1 = new WorldMapPannel();
+	mainLayout->addWidget(worldMap1, 0, 1);
 
-	textoutput = new QLabel();
-	textoutput->setText("fuck yeah ");
-	textoutput->setStyleSheet("background-color: black; color: white");
-	mainLayout->addWidget(textoutput);
 
 	QPushButton* getAvgB = new QPushButton("Get avg");
 	getAvgB->setGeometry(0, 0, 100, 50);
 	getAvgB->setStyleSheet("background-color: white");
-	connect(getAvgB, SIGNAL(clicked()), this, SLOT(getAverage()));
-	mainLayout->addWidget(getAvgB);
+	connect(getAvgB, SIGNAL(clicked()), this, SLOT(getDS()));
+	mainLayout->addWidget(getAvgB, 1, 0);
+	mainLayout->addWidget(DS_Panel,1,1);
 }
+
 
 void earthQuakeGUI::getData()
 {
-	earthQuakes = EarthQuakes("database.csv");
+	
 }
 
-void earthQuakeGUI::getAverage()
+void earthQuakeGUI::getDS()
 {
-	QString avg = QString::number( earthQuakes.average() );
-	textoutput->setText(avg);
+	DS_Panel->getDS();
 }
-

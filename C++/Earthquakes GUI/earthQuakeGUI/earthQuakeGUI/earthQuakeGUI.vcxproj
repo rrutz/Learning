@@ -115,9 +115,11 @@
     </QtRcc>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="descriptive_Descriptions_Pannel.cpp" />
     <ClCompile Include="earthQuakeGUI.cpp" />
     <ClCompile Include="earthQuakes.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="worldMapPannel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="earthQuakeGUI.h" />
@@ -129,6 +131,9 @@
     <QtRcc Include="earthQuakeGUI.qrc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="worldMapPannel.h" />
+    <ClInclude Include="worrldMapData.h" />
+    <QtMoc Include="descriptive_Descriptions_Pannel.h" />
     <ClInclude Include="earthQuakes.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

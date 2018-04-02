@@ -13,6 +13,9 @@ public:
 	float min();
 	float max();
 
+	float rangeMagMin = 0;
+	float rangeMagMax = 10;
+
 public:
 	class EarthQuake
 	{

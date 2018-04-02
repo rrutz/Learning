@@ -45,12 +45,18 @@
     <ClCompile Include="worldMapPannel.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="slidersPannel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="earthQuakeGUI.h">
       <Filter>Header Files</Filter>
     </QtMoc>
     <QtMoc Include="descriptive_Descriptions_Pannel.h">
+      <Filter>Header Files</Filter>
+    </QtMoc>
+    <QtMoc Include="slidersPannel.h">
       <Filter>Header Files</Filter>
     </QtMoc>
   </ItemGroup>

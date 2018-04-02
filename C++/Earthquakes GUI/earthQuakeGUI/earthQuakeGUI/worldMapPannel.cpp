@@ -5,28 +5,36 @@ WorldMapPannel::WorldMapPannel(EarthQuakes* earthQuakes)
 	:
 	earthQuakes(earthQuakes)
 {
-	map =  QImage(800,400, QImage::Format_RGB32);
+	
 	draw();
-	this->setPixmap(QPixmap::fromImage(map));
+	
 }
 
 void WorldMapPannel::draw()
 {
-	float x_scale = map.width()  / (worldMapData->maxLong - worldMapData->minLong);
-	float y_scale = map.height() / (worldMapData->maxLat - worldMapData->minLat);
+	if (earthQuakes->rangeMagMin >= earthQuakes->rangeMagMax)
+		return;
+	map = QImage(800, 400, QImage::Format_RGB32);
+
+	float x_scale = map.width()  / (worldMapData->maxLong - worldMapData->minLong+50);
+	float y_scale = map.height() / (worldMapData->maxLat - worldMapData->minLat+50);
 	float scale = std::min(x_scale, y_scale);
 
 	for( auto col = worldMapData->worldMap.begin(); col < worldMapData->worldMap.end(); col ++)
 	{
-		int y = static_cast<int>(   (col->latidute - worldMapData->minLat) * scale);
-		int x = static_cast<int>(   (col->longitude - worldMapData->minLong) * scale);
+		int y = static_cast<int>(   (col->latidute - worldMapData->minLat) * scale)+25;
+		int x = static_cast<int>(   (col->longitude - worldMapData->minLong) * scale)+25;
 		map.setPixel(x, y, (0, 0, 0));
 	}
 
 	for (auto col = earthQuakes->earthquakes.begin(); col < earthQuakes->earthquakes.end(); col++)
 	{
-		int y = static_cast<int>((col->latitude - worldMapData->minLat) * scale);
-		int x = static_cast<int>((col->longitude - worldMapData->minLong) * scale);
+		if (col->magnitude < earthQuakes->rangeMagMin || col->magnitude > earthQuakes->rangeMagMax)
+			continue;
+		int y = static_cast<int>((col->latitude - worldMapData->minLat) * scale)+25;
+		int x = static_cast<int>((col->longitude - worldMapData->minLong) * scale)+25;
 		map.setPixel(x, y, qRgb(255,0,0));
 	}
+
+	this->setPixmap(QPixmap::fromImage(map));
 }

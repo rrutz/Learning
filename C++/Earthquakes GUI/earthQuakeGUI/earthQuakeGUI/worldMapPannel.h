@@ -8,7 +8,6 @@ class WorldMapPannel : public QLabel
 {
 public:
 	WorldMapPannel(EarthQuakes* earthQuakes);
-private:
 	void draw();
 
 public:

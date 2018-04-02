@@ -119,6 +119,7 @@
     <ClCompile Include="earthQuakeGUI.cpp" />
     <ClCompile Include="earthQuakes.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="slidersPannel.cpp" />
     <ClCompile Include="worldMapPannel.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -132,6 +133,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="histogram.h" />
+    <QtMoc Include="slidersPannel.h" />
     <ClInclude Include="worldMapPannel.h" />
     <ClInclude Include="worrldMapData.h" />
     <QtMoc Include="descriptive_Descriptions_Pannel.h" />

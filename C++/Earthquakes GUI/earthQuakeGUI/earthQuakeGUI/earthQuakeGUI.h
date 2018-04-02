@@ -10,6 +10,7 @@
 #include <QPushButton>
 #include "worldMapPannel.h"
 #include "histogram.h"
+#include "slidersPannel.h"
 
 class earthQuakeGUI : public QWidget
 {
@@ -19,13 +20,16 @@ public:
 	earthQuakeGUI(QWidget *parent = Q_NULLPTR);
 
 	protected slots:
-		void getDS();
+		void minChanged( int newMin);
+		void maxChanged(int newMax);
+
+
 
 public:
 	Ui::earthQuakeGUIClass ui;
 	EarthQuakes earthQuakes;
 	descriptive_Descriptions_Pannel* DS_Panel;
 	WorldMapPannel* worldMap;
-	WorldMapPannel* worldMap1;
 	Histogram* hist;
+	SliderPannel* sliderPannel;
 };

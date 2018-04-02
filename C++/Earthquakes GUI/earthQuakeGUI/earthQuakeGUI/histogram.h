@@ -13,16 +13,19 @@ public:
 		earthQuakes(earthQuakes)
 	{
 		map = QImage(800, 400, QImage::Format_RGB32);
-		draw();
-		this->setPixmap(QPixmap::fromImage(map));
+		draw();	
 	}
 
-private:
+public:
 	void draw()
 	{
 		float binNum = 10;
-		float min = earthQuakes->min()-0.5;
-		float max = earthQuakes->max()+0.5;
+		float min = earthQuakes->rangeMagMin;
+		float max = earthQuakes->rangeMagMax;
+		if (min >= max)
+			return;
+
+		map = QImage(800, 400, QImage::Format_RGB32);
 		float binWidth = (max - min) / binNum;
 		std::vector<int> binSize;
 
@@ -33,10 +36,14 @@ private:
 			binSize.push_back(mycount);
 		}
 
-		float y_scale = (static_cast<float>(map.height())-100) / *std::max_element(binSize.begin(), binSize.end());
+		float maxCount = *std::max_element(binSize.begin(), binSize.end());
+		if (maxCount <= 0)
+			return;
+
+		float y_scale = (static_cast<float>(map.height()) - 100) / maxCount;
 		for (int bin = 0; bin < binNum; bin++)
 		{
-			float binWidth = this->width() / binNum;
+			float binWidth = 50;// static_cast<float>((this->width() - 50)) / binNum;
 			int yTop = map.height() - static_cast<int>(binSize[bin] * y_scale)-50;
 			int xLeft = 50+bin * binWidth;
 			int xRight = 50+(bin + 1) * binWidth;
@@ -68,6 +75,7 @@ private:
 				map.setPixel(xLeft + 1, y, qRgb(255, 0, 0));
 			}
 		}
+		this->setPixmap(QPixmap::fromImage(map));
 	}
 private:
 	EarthQuakes* earthQuakes;

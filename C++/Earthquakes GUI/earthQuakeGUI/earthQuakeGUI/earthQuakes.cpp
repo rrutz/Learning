@@ -82,6 +82,8 @@ float EarthQuakes::average()
 	float count = 0;
 	for (auto quake = earthquakes.begin(); quake < earthquakes.end(); quake++)
 	{
+		if (quake->magnitude < rangeMagMin || quake->magnitude > rangeMagMax)
+			continue;
 		count++;
 		sum += quake->magnitude;
 	}
@@ -95,6 +97,8 @@ float EarthQuakes::variance()
 	float n = 0;
 	for (auto quake = earthquakes.begin(); quake < earthquakes.end(); quake++)
 	{
+		if (quake->magnitude < rangeMagMin || quake->magnitude > rangeMagMax)
+			continue;
 		sum_x2 += pow(quake->magnitude, 2);
 		sum_x += quake->magnitude;
 		n++;

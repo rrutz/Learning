@@ -19,8 +19,8 @@ EarthQuakes::EarthQuakes(std::string fileIn)
 	std::ifstream file_in(fileIn);
 	std::string str;
 
-	int i = 0;
-	for (int lineNum = 0; file_in.good(), i <100; lineNum++, i++)
+
+	for (int lineNum = 0; file_in.good(); lineNum++)
 	{
 		std::getline(file_in, str);
 		if (lineNum == 0 || str == "")
@@ -60,7 +60,7 @@ EarthQuakes::EarthQuakes(std::string fileIn)
 				magnitude = std::stof(v);
 			}
 		}
-		earthquakes.push_back(EarthQuake(year, latitude, longitude, dept, magnitude));
+		earthquakes.push_back(EarthQuake(year, -latitude, longitude, dept, magnitude));
 	}
 }
 
@@ -102,4 +102,30 @@ float EarthQuakes::variance()
 	float mean = sum_x / n;
 	float var = (sum_x2 - 2 * mean* sum_x + pow(mean, 2)*n)/n;
 	return var;
+}
+
+float EarthQuakes::min()
+{
+	float min = 20;
+	for (auto quake = earthquakes.begin(); quake < earthquakes.end(); quake++)
+	{
+		if (quake->magnitude < min)
+		{
+			min = quake->magnitude;
+		}
+	}
+	return min;
+}
+
+float EarthQuakes::max()
+{
+	float max = -5;
+	for (auto quake = earthquakes.begin(); quake < earthquakes.end(); quake++)
+	{
+		if (quake->magnitude > max)
+		{
+			max = quake->magnitude;
+		}
+	}
+	return max;
 }

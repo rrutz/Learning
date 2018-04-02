@@ -10,6 +10,8 @@ public:
 	void print();
 	float average();
 	float variance();
+	float min();
+	float max();
 
 public:
 	class EarthQuake

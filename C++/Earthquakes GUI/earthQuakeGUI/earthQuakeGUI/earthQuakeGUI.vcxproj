@@ -131,6 +131,7 @@
     <QtRcc Include="earthQuakeGUI.qrc" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="histogram.h" />
     <ClInclude Include="worldMapPannel.h" />
     <ClInclude Include="worrldMapData.h" />
     <QtMoc Include="descriptive_Descriptions_Pannel.h" />

@@ -2,11 +2,12 @@
 #include "worrldMapData.h"
 #include <QImage>
 #include <QLabel>
+#include "earthQuakes.h"
 
 class WorldMapPannel : public QLabel
 {
 public:
-	WorldMapPannel();
+	WorldMapPannel(EarthQuakes* earthQuakes);
 private:
 	void draw();
 
@@ -15,5 +16,5 @@ public:
 
 private:
 	QImage map;
-
+	EarthQuakes* earthQuakes;
 };

@@ -1,7 +1,9 @@
 #include "worldMapPannel.h"
 #include <cmath>
 #include <QDebug>
-WorldMapPannel::WorldMapPannel()
+WorldMapPannel::WorldMapPannel(EarthQuakes* earthQuakes)
+	:
+	earthQuakes(earthQuakes)
 {
 	map =  QImage(800,400, QImage::Format_RGB32);
 	draw();
@@ -18,6 +20,13 @@ void WorldMapPannel::draw()
 	{
 		int y = static_cast<int>(   (col->latidute - worldMapData->minLat) * scale);
 		int x = static_cast<int>(   (col->longitude - worldMapData->minLong) * scale);
-		map.setPixel(x, y, (90, 90, 90));
+		map.setPixel(x, y, (0, 0, 0));
+	}
+
+	for (auto col = earthQuakes->earthquakes.begin(); col < earthQuakes->earthquakes.end(); col++)
+	{
+		int y = static_cast<int>((col->latitude - worldMapData->minLat) * scale);
+		int x = static_cast<int>((col->longitude - worldMapData->minLong) * scale);
+		map.setPixel(x, y, qRgb(255,0,0));
 	}
 }

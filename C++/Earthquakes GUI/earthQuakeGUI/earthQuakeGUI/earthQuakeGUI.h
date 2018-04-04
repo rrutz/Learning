@@ -3,14 +3,11 @@
 #include <QtWidgets/QWidget>
 #include "ui_earthQuakeGUI.h"
 #include "earthQuakes.h"
-#include <QString>
-#include <QPlainTextEdit>
-#include <QLabel>
 #include "descriptive_Descriptions_Pannel.h"
-#include <QPushButton>
 #include "worldMapPannel.h"
 #include "histogram.h"
 #include "slidersPannel.h"
+#include <QLabel>
 
 class earthQuakeGUI : public QWidget
 {
@@ -22,14 +19,16 @@ public:
 	protected slots:
 		void minChanged( int newMin);
 		void maxChanged(int newMax);
+		void minChanged_year(int newMin);
+		void maxChanged_year(int newMax);
 
-
-
-public:
+private:
 	Ui::earthQuakeGUIClass ui;
 	EarthQuakes earthQuakes;
 	descriptive_Descriptions_Pannel* DS_Panel;
 	WorldMapPannel* worldMap;
 	Histogram* hist;
 	SliderPannel* sliderPannel;
+	SliderPannel* sliderPannel_year;
+	QLabel* title = new QLabel("Earthquakes");
 };

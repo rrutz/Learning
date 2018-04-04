@@ -12,8 +12,7 @@ WorldMapPannel::WorldMapPannel(EarthQuakes* earthQuakes)
 
 void WorldMapPannel::draw()
 {
-	if (earthQuakes->rangeMagMin >= earthQuakes->rangeMagMax)
-		return;
+	
 	map = QImage(800, 400, QImage::Format_RGB32);
 
 	float x_scale = map.width()  / (worldMapData->maxLong - worldMapData->minLong+50);
@@ -27,9 +26,17 @@ void WorldMapPannel::draw()
 		map.setPixel(x, y, (0, 0, 0));
 	}
 
+	if (earthQuakes->rangeMagMin >= earthQuakes->rangeMagMax)
+	{
+		this->setPixmap(QPixmap::fromImage(map));
+		return;
+	}
+
 	for (auto col = earthQuakes->earthquakes.begin(); col < earthQuakes->earthquakes.end(); col++)
 	{
 		if (col->magnitude < earthQuakes->rangeMagMin || col->magnitude > earthQuakes->rangeMagMax)
+			continue;
+		if (col->year < earthQuakes->rangeMagMin_year || col->year > earthQuakes->rangeMagMax_year)
 			continue;
 		int y = static_cast<int>((col->latitude - worldMapData->minLat) * scale)+25;
 		int x = static_cast<int>((col->longitude - worldMapData->minLong) * scale)+25;

@@ -12,9 +12,12 @@ public:
 	float variance();
 	float min();
 	float max();
+	int count();
 
 	float rangeMagMin = 0;
 	float rangeMagMax = 10;
+	float rangeMagMin_year = 1960;
+	float rangeMagMax_year = 2020;
 
 public:
 	class EarthQuake

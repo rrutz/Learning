@@ -7,17 +7,17 @@ class SliderPannel : public QWidget
 {
 	Q_OBJECT
 public:
-	SliderPannel(int min, int max, QWidget* parent = Q_NULLPTR);
+	SliderPannel(int min, int max, QString name, QWidget* parent = Q_NULLPTR);
 
 private:
-	void formatSlider(QSlider* slider, int sliderPosition, int col);
+	void formatSlider(QSlider* slider, int sliderPosition, int col, QString name);
 	void addLabels(QSlider* slider, int col);
 
 private:
-
 	QSlider* sliderMin;
 	QSlider* sliderMax;
 	QGridLayout* layout;
+	int min, max;
 
 protected slots:
 	void sendMinSignal(int newValue);

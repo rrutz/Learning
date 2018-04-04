@@ -24,6 +24,8 @@ private:
 	QLabel* textM_value = new QLabel();
 	QLabel* textV = new QLabel();
 	QLabel* textV_value = new QLabel();
+	QLabel* textC = new QLabel();
+	QLabel* textC_value = new QLabel();
 	QGridLayout* layout;
 
 };

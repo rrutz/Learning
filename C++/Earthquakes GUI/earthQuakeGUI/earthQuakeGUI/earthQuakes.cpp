@@ -84,6 +84,8 @@ float EarthQuakes::average()
 	{
 		if (quake->magnitude < rangeMagMin || quake->magnitude > rangeMagMax)
 			continue;
+		if (quake->year < rangeMagMin_year || quake->year > rangeMagMax_year)
+			continue;
 		count++;
 		sum += quake->magnitude;
 	}
@@ -98,6 +100,8 @@ float EarthQuakes::variance()
 	for (auto quake = earthquakes.begin(); quake < earthquakes.end(); quake++)
 	{
 		if (quake->magnitude < rangeMagMin || quake->magnitude > rangeMagMax)
+			continue;
+		if (quake->year < rangeMagMin_year || quake->year > rangeMagMax_year)
 			continue;
 		sum_x2 += pow(quake->magnitude, 2);
 		sum_x += quake->magnitude;
@@ -132,4 +136,18 @@ float EarthQuakes::max()
 		}
 	}
 	return max;
+}
+
+int EarthQuakes::count()
+{
+	int count = 0;
+	for (auto quake = earthquakes.begin(); quake < earthquakes.end(); quake++)
+	{
+		if (quake->magnitude < rangeMagMin || quake->magnitude > rangeMagMax)
+			continue;
+		if (quake->year < rangeMagMin_year || quake->year > rangeMagMax_year)
+			continue;
+		count++;
+	}
+	return count;
 }
